@@ -1,7 +1,7 @@
 // =============================================
 // VLTV Play — server.js
 // Backend Node.js com Gemini (Google AI)
-// Chave da API fica segura no servidor.
+// Proxy TMDB integrado — chaves ficam seguras no servidor.
 // =============================================
 
 const http  = require('http');
@@ -10,7 +10,6 @@ const fs    = require('fs');
 const path  = require('path');
 const url   = require('url');
 
-// Chave da API Gemini — vem da variável de ambiente do Render.com
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'SUA_CHAVE_AQUI';
 const TMDB_API_KEY   = process.env.TMDB_API_KEY   || '9b73f5dd15b8165b1b57419be2f29128';
 const PORT           = process.env.PORT || 3000;
@@ -28,7 +27,6 @@ const MIME = {
     '.webp': 'image/webp',
 };
 
-// Instruções do assistente VLTV — ficam seguras no servidor
 const SYSTEM_INSTRUCTION = `Você é o assistente virtual oficial da VLTV Play, um serviço de IPTV premium brasileiro.
 Responda SEMPRE em português do Brasil, com tom simpático, objetivo e profissional.
 Nunca se identifique como IA genérica ou mencione o Google ou Gemini — você é o Assistente VLTV.
@@ -40,17 +38,34 @@ Nunca se identifique como IA genérica ou mencione o Google ou Gemini — você 
 - Plano Anual:      R$ 400/ano   | máxima economia | suporte 24h | acesso Ultra Premium
 - Plano Vitalício:  R$ 569 (pagamento único) | sem mensalidades | suporte VIP permanente
 
+== TESTE GRATUITO ==
+- Duração do teste: 3 horas de acesso completo.
+- Para solicitar, basta clicar em "Solicitar Teste Grátis" no site ou falar pelo WhatsApp.
+- O teste é liberado imediatamente pela equipe.
+
+== FIDELIDADE E CANCELAMENTO ==
+- NÃO há fidelidade em nenhum plano.
+- O cliente pode cancelar quando quiser, sem multa ou burocracia.
+
+== INTERNET ==
+- Sim, é necessário ter conexão com a internet para usar o IPTV.
+- Recomendamos pelo menos 10 Mbps para HD e 25 Mbps para 4K.
+
+== DISPOSITIVOS COMPATÍVEIS ==
+- Sim, pode instalar no Celular (Android e iOS).
+- Sim, pode instalar em TV Smart.
+- Sim, pode instalar em Notebook / Computador.
+- Sim, pode instalar em Fire Stick / TV Box.
+- Sim, pode instalar em Roku TV.
+- Você pode instalar em quantos aparelhos desejar; o acesso simultâneo depende da quantidade de telas do plano.
+
 == FORMAS DE PAGAMENTO ==
 - PIX: ativação IMEDIATA e automática após confirmação (em minutos).
 - Cartão de Crédito: ativação em até 1 hora após confirmação.
 - Boleto Bancário: ativação após compensação bancária (até 2 dias úteis) OU imediata se o cliente enviar o comprovante pelo WhatsApp.
 
-== DISPOSITIVOS SUPORTADOS ==
-TV Smart, Celular (Android e iOS), TV Box, Fire Stick, Computador/Notebook, Roku TV.
-
 == ATIVAÇÃO ==
 As credenciais são enviadas pelo WhatsApp com tutorial passo a passo para o aparelho do cliente.
-Teste grátis disponível: o cliente solicita pelo site.
 
 == SUPORTE ==
 WhatsApp direto com a equipe. Suporte prioritário nos planos Semestral e Anual. VIP no Vitalício.
@@ -78,7 +93,7 @@ function serveStatic(res, filePath) {
     });
 }
 
-// ── Chamada à API TMDB ──
+// ── Proxy TMDB (chamada servidor → TMDB, sem CORS) ──
 function callTMDB(tmdbPath) {
     return new Promise((resolve, reject) => {
         const options = {
@@ -141,6 +156,30 @@ function callGemini(history) {
     });
 }
 
+// ── Busca lançamentos futuros do TMDB (a partir de hoje) ──
+async function fetchUpcomingFiltered() {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    let allResults = [];
+
+    // Busca 3 páginas para garantir filmes suficientes após filtro
+    for (let page = 1; page <= 3; page++) {
+        const data = await callTMDB(
+            `/3/discover/movie?api_key=${TMDB_API_KEY}&language=pt-BR&sort_by=release_date.asc&primary_release_date.gte=${today}&page=${page}`
+        );
+        if (data.results && data.results.length > 0) {
+            allResults = allResults.concat(data.results);
+        }
+    }
+
+    // Garante só futuros, ordena por data e limita a 15
+    const filtered = allResults
+        .filter(m => m.release_date && m.release_date >= today)
+        .sort((a, b) => a.release_date.localeCompare(b.release_date))
+        .slice(0, 15);
+
+    return filtered;
+}
+
 // ── Servidor ──
 const server = http.createServer(async (req, res) => {
     const parsed  = url.parse(req.url, true);
@@ -157,15 +196,24 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    // ── Rota /api/tmdb (proxy seguro para o TMDB) ──
-    if (reqPath.startsWith('/api/tmdb') && req.method === 'GET') {
-        const tmdbEndpoint = parsed.query.endpoint || '';
-        if (!tmdbEndpoint) {
-            return sendJSON(res, 400, { error: 'endpoint obrigatório' });
+    // ── Rota /api/upcoming — filmes futuros filtrados ──
+    if (reqPath === '/api/upcoming' && req.method === 'GET') {
+        try {
+            const movies = await fetchUpcomingFiltered();
+            sendJSON(res, 200, { results: movies });
+        } catch (err) {
+            console.error('[/api/upcoming] Erro:', err.message);
+            sendJSON(res, 500, { error: 'Erro ao buscar filmes' });
         }
-        // Monta a URL completa do TMDB com a chave no servidor
-        const separator = tmdbEndpoint.includes('?') ? '&' : '?';
-        const fullPath  = `/3/${tmdbEndpoint}${separator}api_key=${TMDB_API_KEY}`;
+        return;
+    }
+
+    // ── Rota /api/tmdb — proxy genérico para imagens e créditos ──
+    if (reqPath === '/api/tmdb' && req.method === 'GET') {
+        const endpoint = parsed.query.endpoint || '';
+        if (!endpoint) return sendJSON(res, 400, { error: 'endpoint obrigatório' });
+        const sep      = endpoint.includes('?') ? '&' : '?';
+        const fullPath = `/3/${endpoint}${sep}api_key=${TMDB_API_KEY}`;
         try {
             const data = await callTMDB(fullPath);
             sendJSON(res, 200, data);
@@ -183,20 +231,14 @@ const server = http.createServer(async (req, res) => {
         req.on('end', async () => {
             try {
                 const { history } = JSON.parse(body);
-
                 if (!Array.isArray(history) || history.length === 0) {
                     return sendJSON(res, 400, { error: 'history inválido' });
                 }
-
                 const geminiData = await callGemini(history);
-
-                // Extrai o texto da resposta do Gemini
                 const reply =
                     geminiData?.candidates?.[0]?.content?.parts?.[0]?.text
                     || 'Desculpe, não consegui processar sua pergunta agora. Fale conosco no WhatsApp!';
-
                 sendJSON(res, 200, { reply });
-
             } catch (err) {
                 console.error('[/api/chat] Erro:', err.message);
                 sendJSON(res, 500, { error: 'Erro interno no servidor' });
@@ -207,16 +249,14 @@ const server = http.createServer(async (req, res) => {
 
     // ── Arquivos estáticos da pasta /public ──
     let filePath = path.join(STATIC_DIR, reqPath === '/' ? 'index.html' : reqPath);
-
-    // Segurança: bloqueia path traversal
     if (!filePath.startsWith(STATIC_DIR)) {
         res.writeHead(403); res.end('Proibido'); return;
     }
-
     serveStatic(res, filePath);
 });
 
 server.listen(PORT, () => {
     console.log(`✅  VLTV Play rodando em http://localhost:${PORT}`);
-    console.log(`🔑  Gemini API Key: ${GEMINI_API_KEY === 'SUA_CHAVE_AQUI' ? '⚠️  NÃO CONFIGURADA' : 'OK ✓'}`);
+    console.log(`🔑  Gemini: ${GEMINI_API_KEY === 'SUA_CHAVE_AQUI' ? '⚠️  NÃO CONFIGURADA' : 'OK ✓'}`);
+    console.log(`🎬  TMDB: OK ✓`);
 });

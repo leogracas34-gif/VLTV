@@ -3,7 +3,6 @@
 // Chat usa Gemini via backend seguro /api/chat
 // =============================================
 
-const TMDB_API_KEY   = '9b73f5dd15b8165b1b57419be2f29128';
 const WHATSAPP_NUMBER = '5531998491711';
 let currentPlanContext = 'Geral';
 
@@ -29,10 +28,15 @@ function isComingSoon(dateStr) {
     return diff >= 0 && diff <= 7;
 }
 
+// Proxy seguro: chama o backend que repassa ao TMDB
+async function tmdb(endpoint) {
+    const res  = await fetch(`/api/tmdb?endpoint=${encodeURIComponent(endpoint)}`);
+    return res.json();
+}
+
 async function fetchUpcomingMovies() {
     try {
-        const res  = await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${TMDB_API_KEY}&language=pt-BR&page=1`);
-        const data = await res.json();
+        const data = await tmdb('movie/upcoming?language=pt-BR&page=1');
 
         if (!data.results || data.results.length === 0) {
             movieTrack.innerHTML = '<div class="loading-text">Nenhum lançamento encontrado no momento.</div>';
@@ -56,16 +60,14 @@ async function fetchUpcomingMovies() {
 
             let logoHtml = `<div class="movie-fallback-title">${movie.title}</div>`;
             try {
-                const imgRes  = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}/images?api_key=${TMDB_API_KEY}`);
-                const imgData = await imgRes.json();
+                const imgData = await tmdb(`movie/${movie.id}/images`);
                 const logo    = (imgData.logos || []).find(l => l.iso_639_1 === 'en' || l.iso_639_1 === 'pt' || !l.iso_639_1);
                 if (logo) logoHtml = `<img src="https://image.tmdb.org/t/p/w300${logo.file_path}" class="movie-logo-img" alt="${movie.title}">`;
             } catch (_) {}
 
             let directorHtml = '';
             try {
-                const credRes  = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}/credits?api_key=${TMDB_API_KEY}&language=pt-BR`);
-                const credData = await credRes.json();
+                const credData = await tmdb(`movie/${movie.id}/credits?language=pt-BR`);
                 const director = (credData.crew || []).find(p => p.job === 'Director');
                 if (director) directorHtml = `<div class="movie-meta">🎬 Dir.: ${director.name}</div>`;
             } catch (_) {}

@@ -12,6 +12,7 @@ const url   = require('url');
 
 // Chave da API Gemini — vem da variável de ambiente do Render.com
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'SUA_CHAVE_AQUI';
+const TMDB_API_KEY   = process.env.TMDB_API_KEY   || '9b73f5dd15b8165b1b57419be2f29128';
 const PORT           = process.env.PORT || 3000;
 const STATIC_DIR     = path.join(__dirname, 'public');
 
@@ -77,6 +78,28 @@ function serveStatic(res, filePath) {
     });
 }
 
+// ── Chamada à API TMDB ──
+function callTMDB(tmdbPath) {
+    return new Promise((resolve, reject) => {
+        const options = {
+            hostname: 'api.themoviedb.org',
+            path:     tmdbPath,
+            method:   'GET',
+            headers:  { 'Accept': 'application/json' },
+        };
+        const req = https.request(options, (apiRes) => {
+            let raw = '';
+            apiRes.on('data', chunk => raw += chunk);
+            apiRes.on('end', () => {
+                try { resolve(JSON.parse(raw)); }
+                catch (e) { reject(new Error('Resposta inválida do TMDB')); }
+            });
+        });
+        req.on('error', reject);
+        req.end();
+    });
+}
+
 // ── Chamada à API Gemini ──
 function callGemini(history) {
     return new Promise((resolve, reject) => {
@@ -119,7 +142,7 @@ function callGemini(history) {
 }
 
 // ── Servidor ──
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
     const parsed  = url.parse(req.url, true);
     const reqPath = parsed.pathname;
 
@@ -131,6 +154,25 @@ const server = http.createServer((req, res) => {
             'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
         });
         res.end();
+        return;
+    }
+
+    // ── Rota /api/tmdb (proxy seguro para o TMDB) ──
+    if (reqPath.startsWith('/api/tmdb') && req.method === 'GET') {
+        const tmdbEndpoint = parsed.query.endpoint || '';
+        if (!tmdbEndpoint) {
+            return sendJSON(res, 400, { error: 'endpoint obrigatório' });
+        }
+        // Monta a URL completa do TMDB com a chave no servidor
+        const separator = tmdbEndpoint.includes('?') ? '&' : '?';
+        const fullPath  = `/3/${tmdbEndpoint}${separator}api_key=${TMDB_API_KEY}`;
+        try {
+            const data = await callTMDB(fullPath);
+            sendJSON(res, 200, data);
+        } catch (err) {
+            console.error('[/api/tmdb] Erro:', err.message);
+            sendJSON(res, 500, { error: 'Erro ao buscar dados do TMDB' });
+        }
         return;
     }
 

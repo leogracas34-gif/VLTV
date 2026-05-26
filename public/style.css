@@ -1,0 +1,297 @@
+/* =============================================
+   VLTV Play — style.css
+   ============================================= */
+:root {
+    --primary-red:    #E50914;
+    --hover-red:      #B20710;
+    --bg-black:       #141414;
+    --card-black:     #1F1F1F;
+    --text-white:     #FFFFFF;
+    --text-grey:      #AAAAAA;
+    --gold-color:     #D4AF37;
+    --whatsapp-green: #25D366;
+    --whatsapp-hover: #1ebe57;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; scroll-behavior: smooth; }
+
+body { background-color: var(--bg-black); color: var(--text-white); overflow-x: hidden; }
+
+/* ── HEADER ── */
+header {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
+    position: absolute; top: 0; left: 0; width: 100%; z-index: 100;
+    padding: 25px 5%; display: flex; justify-content: space-between; align-items: center;
+}
+.logo { font-size: 24pt; font-weight: 900; color: var(--primary-red); text-transform: uppercase; letter-spacing: 1px; }
+nav a { color: var(--text-white); text-decoration: none; margin-left: 25px; font-weight: 700; transition: color 0.3s; }
+nav a:hover { color: var(--primary-red); }
+
+/* ── HERO ── */
+.hero {
+    height: 80vh;
+    background: linear-gradient(to bottom, rgba(20,20,20,0.2), rgba(20,20,20,1)),
+                url('https://images.unsplash.com/photo-1574375927938-d5a98e8edd86?q=80&w=1920') no-repeat center/cover;
+    display: flex; align-items: center; padding: 0 5%;
+}
+.hero-content { max-width: 650px; }
+.hero h1 { font-size: 38pt; font-weight: 900; margin-bottom: 20px; line-height: 1.1; }
+.hero p  { font-size: 14pt; color: var(--text-grey); margin-bottom: 30px; line-height: 1.5; }
+.btn-cta {
+    background-color: var(--primary-red); color: #fff;
+    padding: 16px 40px; border: none; border-radius: 4px;
+    font-size: 13pt; font-weight: 700; cursor: pointer; text-transform: uppercase;
+    transition: background-color 0.2s;
+}
+.btn-cta:hover { background-color: var(--hover-red); }
+
+/* ── CARROSSEL TMDB ── */
+.tmdb-section { padding: 50px 5%; position: relative; }
+.tmdb-section h2 { font-size: 20pt; margin-bottom: 25px; border-left: 4px solid var(--primary-red); padding-left: 12px; }
+
+.carousel-container { position: relative; display: flex; align-items: center; }
+.carousel-track-container { width: 100%; overflow: hidden; }
+.carousel-track { display: flex; gap: 20px; transition: transform 0.5s ease-in-out; }
+
+.loading-text { padding: 40px; color: var(--text-grey); font-size: 12pt; width: 100%; text-align: center; }
+
+/* Card de Filme — melhorado */
+.movie-card {
+    min-width: 230px; max-width: 230px;
+    background-color: var(--card-black);
+    border-radius: 8px; overflow: hidden;
+    flex-shrink: 0; position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+.movie-card:hover { transform: translateY(-6px); box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+
+/* Badge "Em breve esta semana" */
+.coming-soon-badge {
+    position: absolute; top: 10px; left: 0;
+    background: var(--primary-red);
+    color: #fff; font-size: 8pt; font-weight: 700;
+    padding: 4px 12px 4px 10px;
+    border-radius: 0 20px 20px 0;
+    z-index: 5; text-transform: uppercase; letter-spacing: 0.5px;
+    box-shadow: 2px 2px 8px rgba(229,9,20,0.5);
+}
+
+.movie-poster { width: 100%; height: 330px; object-fit: cover; display: block; }
+
+.movie-info {
+    padding: 14px;
+    background: linear-gradient(to top, #0d0d0d 70%, rgba(13,13,13,0));
+}
+.movie-logo-container { height: 42px; display: flex; align-items: center; margin-bottom: 8px; }
+.movie-logo-img { max-height: 100%; max-width: 100%; object-fit: contain; }
+.movie-fallback-title { font-size: 10.5pt; font-weight: 700; text-transform: uppercase; color: var(--text-white); line-height: 1.3; }
+
+.movie-meta { font-size: 8.5pt; color: var(--text-grey); margin-bottom: 4px; line-height: 1.4; }
+.movie-rating { color: #f5c518; font-weight: 700; }
+
+.carousel-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background-color: rgba(0,0,0,0.75); color: #fff;
+    border: none; width: 45px; height: 45px; border-radius: 50%;
+    cursor: pointer; z-index: 10; font-size: 16pt;
+    display: flex; justify-content: center; align-items: center;
+    transition: background-color 0.2s;
+}
+.carousel-btn:hover { background-color: var(--primary-red); }
+.prev-btn { left: -20px; }
+.next-btn { right: -20px; }
+
+/* ── PLANOS ── */
+.plans-section { padding: 70px 5%; background-color: #0b0b0b; text-align: center; }
+.plans-section h2 { font-size: 26pt; margin-bottom: 10px; }
+.plans-section p.subtitle { color: var(--text-grey); margin-bottom: 50px; font-size: 12pt; }
+
+.plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; }
+
+.plan-card {
+    background-color: var(--card-black); border: 2px solid #2f2f2f; border-radius: 8px;
+    padding: 40px 20px; transition: border-color 0.3s, transform 0.3s;
+    display: flex; flex-direction: column; justify-content: space-between; position: relative;
+}
+.plan-card:hover { border-color: var(--primary-red); transform: translateY(-5px); }
+.plan-card.featured { border-color: var(--primary-red); background: linear-gradient(180deg, #1f1f1f 0%, #290305 100%); }
+.plan-card.vitalicio-card { border-color: var(--gold-color); }
+.plan-card.vitalicio-card:hover { border-color: #FFD700; }
+
+.badge {
+    position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+    background-color: var(--primary-red); color: #fff;
+    padding: 5px 18px; font-size: 9pt; font-weight: 700; border-radius: 20px; text-transform: uppercase;
+}
+.badge-gold {
+    position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+    background-color: var(--gold-color); color: #000;
+    padding: 5px 18px; font-size: 9pt; font-weight: 700; border-radius: 20px; text-transform: uppercase;
+}
+.plan-name  { font-size: 15pt; font-weight: 700; margin-bottom: 15px; }
+.plan-price { font-size: 26pt; font-weight: 900; margin-bottom: 25px; }
+.plan-price span { font-size: 11pt; color: var(--text-grey); font-weight: 400; }
+
+.plan-features { list-style: none; margin-bottom: 35px; text-align: left; }
+.plan-features li { font-size: 10pt; color: #e0e0e0; margin-bottom: 12px; display: flex; align-items: center; }
+.plan-features li::before { content: "✓"; color: var(--primary-red); font-weight: bold; margin-right: 8px; }
+.plan-card.vitalicio-card .plan-features li::before { color: var(--gold-color); }
+
+.btn-plan {
+    background-color: transparent; color: #fff; border: 2px solid var(--primary-red);
+    padding: 13px; border-radius: 4px; width: 100%; font-weight: 700;
+    cursor: pointer; transition: background-color 0.2s; text-transform: uppercase;
+}
+.btn-plan:hover { background-color: var(--primary-red); }
+.plan-card.vitalicio-card .btn-plan { border-color: var(--gold-color); }
+.plan-card.vitalicio-card .btn-plan:hover { background-color: var(--gold-color); color: #000; }
+
+/* ── FAQ ── */
+.faq-section { padding: 70px 5%; max-width: 850px; margin: 0 auto; }
+.faq-section h2 { font-size: 22pt; text-align: center; margin-bottom: 35px; }
+.faq-item { background-color: var(--card-black); margin-bottom: 15px; border-radius: 4px; overflow: hidden; }
+.faq-question { padding: 22px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+.faq-question::after { content: "+"; font-size: 16pt; color: var(--primary-red); transition: transform 0.3s; }
+.faq-item.active .faq-question::after { transform: rotate(45deg); }
+.faq-answer { max-height: 0; overflow: hidden; padding: 0 22px; color: var(--text-grey); font-size: 11pt; line-height: 1.6; transition: max-height 0.35s ease, padding 0.35s ease; }
+.faq-item.active .faq-answer { max-height: 300px; padding: 0 22px 22px; }
+
+/* ── FOOTER ── */
+footer { background-color: #000; padding: 35px 5%; text-align: center; color: #666; font-size: 10pt; border-top: 1px solid #1a1a1a; }
+
+/* ── MODAL ── */
+.modal-overlay {
+    position: fixed; inset: 0; background-color: rgba(0,0,0,0.88);
+    z-index: 200; display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-box { background-color: var(--card-black); border: 2px solid var(--primary-red); padding: 35px; border-radius: 8px; max-width: 480px; width: 90%; text-align: center; position: relative; }
+.close-modal { position: absolute; top: 15px; right: 20px; font-size: 22pt; color: var(--text-grey); cursor: pointer; }
+.close-modal:hover { color: #fff; }
+.modal-box h3 { font-size: 18pt; margin-bottom: 15px; }
+.modal-box p  { color: var(--text-grey); margin-bottom: 22px; font-size: 11pt; }
+.device-select { width: 100%; padding: 14px; background-color: #141414; color: #fff; border: 1px solid #444; border-radius: 4px; font-size: 11pt; margin-bottom: 25px; outline: none; }
+.device-select:focus { border-color: var(--primary-red); }
+.btn-modal-submit { background-color: var(--primary-red); color: #fff; padding: 14px 25px; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; width: 100%; text-transform: uppercase; font-size: 11pt; }
+.btn-modal-submit:hover { background-color: var(--hover-red); }
+
+/* ── BOTÃO FLUTUANTE WHATSAPP ── */
+.whatsapp-float {
+    position: fixed; bottom: 100px; right: 28px; z-index: 150;
+    width: 58px; height: 58px; background-color: var(--whatsapp-green);
+    border-radius: 50%; display: flex; justify-content: center; align-items: center;
+    color: #fff; text-decoration: none;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.45);
+    transition: background-color 0.2s, transform 0.2s;
+    animation: pulseWpp 2.5s infinite;
+}
+.whatsapp-float svg { width: 30px; height: 30px; }
+.whatsapp-float:hover { background-color: var(--whatsapp-hover); transform: scale(1.1); animation: none; }
+
+.whatsapp-tooltip {
+    position: absolute; right: 68px; top: 50%; transform: translateY(-50%);
+    background-color: #1f1f1f; color: #fff; padding: 6px 12px; border-radius: 6px;
+    font-size: 10pt; font-weight: 700; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; border: 1px solid #333;
+}
+.whatsapp-tooltip::after {
+    content: ''; position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
+    border: 6px solid transparent; border-left-color: #1f1f1f;
+}
+.whatsapp-float:hover .whatsapp-tooltip { opacity: 1; }
+
+@keyframes pulseWpp {
+    0%   { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); }
+    70%  { box-shadow: 0 0 0 14px rgba(37,211,102,0); }
+    100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+}
+
+/* ── CHAT IA ── */
+.chat-widget { position: fixed; bottom: 28px; right: 28px; z-index: 150; display: flex; flex-direction: column; align-items: flex-end; }
+
+.chat-toggle {
+    width: 58px; height: 58px; background-color: var(--primary-red); border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    cursor: pointer; box-shadow: 0 4px 20px rgba(229,9,20,0.45);
+    transition: background-color 0.2s, transform 0.2s; position: relative;
+    animation: pulseChat 2.5s infinite;
+}
+.chat-toggle:hover { background-color: var(--hover-red); transform: scale(1.1); animation: none; }
+.chat-toggle svg { width: 26px; height: 26px; fill: #fff; }
+
+.chat-badge {
+    position: absolute; top: -4px; right: -4px;
+    background-color: var(--whatsapp-green); color: #fff;
+    font-size: 8pt; font-weight: 900; width: 20px; height: 20px;
+    border-radius: 50%; display: flex; justify-content: center; align-items: center;
+    border: 2px solid var(--bg-black);
+}
+
+@keyframes pulseChat {
+    0%   { box-shadow: 0 0 0 0 rgba(229,9,20,0.5); }
+    70%  { box-shadow: 0 0 0 14px rgba(229,9,20,0); }
+    100% { box-shadow: 0 0 0 0 rgba(229,9,20,0); }
+}
+
+.chat-box {
+    width: 340px; background-color: #181818;
+    border: 1px solid #2a2a2a; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7); margin-bottom: 12px;
+    display: none; flex-direction: column; max-height: 520px;
+    transform-origin: bottom right;
+    transform: scale(0.9) translateY(20px); opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.chat-box.open { display: flex; transform: scale(1) translateY(0); opacity: 1; }
+
+.chat-header {
+    background: linear-gradient(135deg, #1a0204, #2d0507);
+    border-bottom: 1px solid #3a0608; padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.chat-header-info { display: flex; align-items: center; gap: 10px; }
+.chat-avatar { width: 38px; height: 38px; background-color: var(--primary-red); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+.chat-name   { font-weight: 700; font-size: 11pt; }
+.chat-status { font-size: 8pt; color: var(--whatsapp-green); }
+.chat-close-btn { background: none; border: none; color: var(--text-grey); font-size: 14pt; cursor: pointer; padding: 4px; line-height: 1; transition: color 0.2s; }
+.chat-close-btn:hover { color: #fff; }
+
+.chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-height: 220px; max-height: 320px; scrollbar-width: thin; scrollbar-color: #333 transparent; }
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background-color: #333; border-radius: 4px; }
+
+.chat-msg       { display: flex; flex-direction: column; max-width: 85%; }
+.chat-msg.bot   { align-self: flex-start; }
+.chat-msg.user  { align-self: flex-end; }
+
+.chat-bubble { padding: 10px 14px; border-radius: 14px; font-size: 10pt; line-height: 1.5; }
+.chat-msg.bot  .chat-bubble { background-color: #2a2a2a; color: #fff; border-bottom-left-radius: 4px; }
+.chat-msg.user .chat-bubble { background-color: var(--primary-red); color: #fff; border-bottom-right-radius: 4px; }
+.chat-time { font-size: 7pt; color: #555; margin-top: 4px; padding: 0 4px; }
+.chat-msg.user .chat-time { text-align: right; }
+
+/* Indicador de digitando */
+.typing-indicator .chat-bubble { display: flex; gap: 4px; align-items: center; padding: 12px 16px; }
+.typing-indicator .dot { width: 7px; height: 7px; background-color: #666; border-radius: 50%; animation: typingBounce 1.2s infinite ease-in-out; }
+.typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+.chat-input-area { padding: 12px; display: flex; gap: 8px; border-top: 1px solid #2a2a2a; background-color: #141414; }
+.chat-input { flex: 1; background-color: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 20px; padding: 10px 16px; color: #fff; font-size: 10pt; outline: none; transition: border-color 0.2s; }
+.chat-input:focus { border-color: var(--primary-red); }
+.chat-input::placeholder { color: #555; }
+.chat-send-btn { width: 40px; height: 40px; background-color: var(--primary-red); border: none; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #fff; flex-shrink: 0; transition: background-color 0.2s; }
+.chat-send-btn:hover { background-color: var(--hover-red); }
+
+/* ── RESPONSIVO ── */
+@media (max-width: 600px) {
+    .hero h1 { font-size: 26pt; }
+    .hero p  { font-size: 12pt; }
+    .plans-section h2 { font-size: 20pt; }
+    .chat-box { width: calc(100vw - 40px); }
+    .whatsapp-float { bottom: 105px; right: 18px; }
+    .chat-widget { bottom: 18px; right: 18px; }
+}

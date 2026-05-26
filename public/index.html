@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VLTV Play - O Melhor do Streaming</title>
+    <meta property="og:title" content="VLTV Play - O Melhor do Streaming">
+    <meta property="og:description" content="Acesse milhares de canais, filmes e séries com estabilidade total. Solicite seu teste grátis agora mesmo!">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1574375927938-d5a98e8edd86?q=80&w=600">
+    <meta property="og:url" content="https://vltvplay.com">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">VLTV Play</div>
+        <nav>
+            <a href="#lancamentos">Lançamentos</a>
+            <a href="#planos">Planos</a>
+            <a href="#faq">Dúvidas</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Sua Experiência de Cinema em Casa</h1>
+            <p>Acesse milhares de canais, filmes e séries com estabilidade total e a melhor qualidade de imagem do mercado.</p>
+            <button class="btn-cta" onclick="openModal('Geral')">Solicitar Teste Grátis</button>
+        </div>
+    </section>
+
+    <section class="tmdb-section" id="lancamentos">
+        <h2>Próximas Estreias (Cinema & Streaming)</h2>
+        <div class="carousel-container">
+            <button class="carousel-btn prev-btn" id="prevBtn">&#10094;</button>
+            <div class="carousel-track-container">
+                <div class="carousel-track" id="movieTrack">
+                    <div class="loading-text">Carregando lançamentos em tempo real...</div>
+                </div>
+            </div>
+            <button class="carousel-btn next-btn" id="nextBtn">&#10095;</button>
+        </div>
+    </section>
+
+    <section class="plans-section" id="planos">
+        <h2>Escolha Seu Plano Perfeito</h2>
+        <p class="subtitle">Acesso completo sem fidelidade. Selecione a melhor opção para você.</p>
+        <div class="plans-grid">
+            <div class="plan-card">
+                <div>
+                    <div class="plan-name">Plano Mensal</div>
+                    <div class="plan-price">R$ 40 <span>/ mês</span></div>
+                    <ul class="plan-features">
+                        <li>Canais HD, Full HD e 4K</li>
+                        <li>Milhares de Filmes e Séries</li>
+                        <li>Suporte Técnico Integrado</li>
+                        <li>1 Dispositivo Simultâneo</li>
+                    </ul>
+                </div>
+                <button class="btn-plan" onclick="openModal('Plano Mensal')">Solicitar Teste</button>
+            </div>
+
+            <div class="plan-card">
+                <div>
+                    <div class="plan-name">Plano Trimestral</div>
+                    <div class="plan-price">R$ 110 <span>/ 3 meses</span></div>
+                    <ul class="plan-features">
+                        <li>Todos os benefícios inclusos</li>
+                        <li>Mais economia no trimestre</li>
+                        <li>Grade completa de canais</li>
+                        <li>Atualizações Automáticas</li>
+                    </ul>
+                </div>
+                <button class="btn-plan" onclick="openModal('Plano Trimestral')">Solicitar Teste</button>
+            </div>
+
+            <div class="plan-card featured">
+                <div class="badge">Mais Vendido</div>
+                <div>
+                    <div class="plan-name">Plano Semestral</div>
+                    <div class="plan-price">R$ 210 <span>/ 6 meses</span></div>
+                    <ul class="plan-features">
+                        <li>Acesso Ultra Estabilizado</li>
+                        <li>Servidores dedicados e sem travas</li>
+                        <li>Guia de Programação (EPG)</li>
+                        <li>Suporte Prioritário</li>
+                    </ul>
+                </div>
+                <button class="btn-plan" onclick="openModal('Plano Semestral')">Solicitar Teste</button>
+            </div>
+
+            <div class="plan-card">
+                <div>
+                    <div class="plan-name">Plano Anual</div>
+                    <div class="plan-price">R$ 400 <span>/ ano</span></div>
+                    <ul class="plan-features">
+                        <li>Máxima economia anual</li>
+                        <li>Acesso Ultra Premium</li>
+                        <li>Prioridade em Lançamentos</li>
+                        <li>Suporte Completo 24h</li>
+                    </ul>
+                </div>
+                <button class="btn-plan" onclick="openModal('Plano Anual')">Solicitar Teste</button>
+            </div>
+
+            <div class="plan-card vitalicio-card">
+                <div class="badge-gold">Acesso Permanente</div>
+                <div>
+                    <div class="plan-name">Plano Vitalício</div>
+                    <div class="plan-price">R$ 569 <span>/ Único</span></div>
+                    <ul class="plan-features">
+                        <li>Pague apenas uma vez</li>
+                        <li>Suporte VIP Vitalício</li>
+                        <li>Sem mensalidades para sempre</li>
+                        <li>Acesso total permanente</li>
+                    </ul>
+                </div>
+                <button class="btn-plan" onclick="openModal('Plano Vitalício')">Solicitar Teste</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section" id="faq">
+        <h2>Perguntas Frequentes</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">Como funciona a liberação do sinal após o teste?</div>
+            <div class="faq-answer">A liberação acontece imediatamente após a confirmação do pagamento. Nossa equipe envia as credenciais de acesso direto no seu WhatsApp com o tutorial passo a passo para o seu aparelho.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Quais são as formas de pagamento disponíveis?</div>
+            <div class="faq-answer">Aceitamos PIX (ativação imediata automática), Cartão de Crédito e Boleto Bancário. O PIX é compensado na hora — o acesso é liberado automaticamente em minutos. No boleto, a liberação ocorre após a compensação bancária (até 2 dias úteis) ou imediatamente se o comprovante for enviado no nosso WhatsApp.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Posso usar em mais de um aparelho?</div>
+            <div class="faq-answer">Você pode instalar o aplicativo em quantos aparelhos desejar, mas o acesso simultâneo depende da quantidade de telas contratadas em seu plano escolhido.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Quanto tempo leva para ativar após o pagamento?</div>
+            <div class="faq-answer">Via PIX: ativação imediata, em minutos. Via Cartão de Crédito: ativação em até 1 hora após confirmação. Via Boleto: ativação após compensação bancária (até 2 dias úteis) ou imediata se o comprovante for enviado no nosso WhatsApp.</div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 VLTV Play. Todos os direitos reservados. O melhor sistema de streaming completo.</p>
+    </footer>
+
+    <!-- Modal de Planos -->
+    <div class="modal-overlay" id="testModal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle">Solicitar Teste</h3>
+            <p>Selecione em qual dispositivo você deseja realizar o teste:</p>
+            <select class="device-select" id="deviceSelect">
+                <option value="TV Smart">📺 TV Smart</option>
+                <option value="Celular">📱 Celular</option>
+                <option value="TV Box / Fire Stick">📦 TV Box / Fire Stick</option>
+                <option value="Computador / Notebook">💻 Computador / Notebook</option>
+                <option value="Roku TV">📑 Roku TV</option>
+            </select>
+            <button class="btn-modal-submit" onclick="sendWhatsApp()">Prosseguir para o WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- Botão Flutuante WhatsApp -->
+    <a class="whatsapp-float" href="https://api.whatsapp.com/send?phone=5531998491711&text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20o%20VLTV%20Play." target="_blank" title="Fale conosco no WhatsApp">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        <span class="whatsapp-tooltip">Fale Conosco!</span>
+    </a>
+
+    <!-- Widget de Chat com IA -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-toggle" id="chatToggle" onclick="toggleChat()" title="Assistente Virtual VLTV">
+            <svg class="chat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+            </svg>
+            <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="display:none;">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            <span class="chat-badge" id="chatBadge">1</span>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">🤖</div>
+                    <div>
+                        <div class="chat-name">Assistente VLTV</div>
+                        <div class="chat-status">● Online agora</div>
+                    </div>
+                </div>
+                <button class="chat-close-btn" onclick="toggleChat()">✕</button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-msg bot">
+                    <div class="chat-bubble">Olá! 👋 Sou o assistente virtual da <strong>VLTV Play</strong>. Posso tirar suas dúvidas sobre planos, preços, formas de pagamento e muito mais! Como posso te ajudar?</div>
+                    <div class="chat-time">agora</div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Digite sua dúvida..." onkeydown="handleChatKey(event)" />
+                <button class="chat-send-btn" onclick="sendChatMessage()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,6 +1,5 @@
 // =============================================
 // VLTV Play — script.js
-// Chat usa Gemini via backend seguro /api/chat
 // =============================================
 
 const WHATSAPP_NUMBER = '5531998491711';
@@ -22,37 +21,44 @@ const cardWidth  = 250;
 
 function isComingSoon(dateStr) {
     if (!dateStr) return false;
-    const release = new Date(dateStr);
+    const release = new Date(dateStr + 'T00:00:00');
     const today   = new Date();
-    const diff    = (release - today) / (1000 * 60 * 60 * 24);
+    today.setHours(0, 0, 0, 0);
+    const diff = (release - today) / (1000 * 60 * 60 * 24);
     return diff >= 0 && diff <= 7;
 }
 
-// Proxy seguro: chama o backend que repassa ao TMDB
+// Chama o backend (sem CORS, chave fica no servidor)
 async function tmdb(endpoint) {
-    const res  = await fetch(`/api/tmdb?endpoint=${encodeURIComponent(endpoint)}`);
+    const res = await fetch(`/api/tmdb?endpoint=${encodeURIComponent(endpoint)}`);
+    if (!res.ok) throw new Error('Erro TMDB ' + res.status);
     return res.json();
 }
 
 async function fetchUpcomingMovies() {
     try {
-        const data = await tmdb('movie/upcoming?language=pt-BR&page=1');
+        // Usa a rota dedicada que já filtra e ordena no servidor
+        const res  = await fetch('/api/upcoming');
+        if (!res.ok) throw new Error('Erro /api/upcoming: ' + res.status);
+        const data = await res.json();
 
         if (!data.results || data.results.length === 0) {
-            movieTrack.innerHTML = '<div class="loading-text">Nenhum lançamento encontrado no momento.</div>';
+            movieTrack.innerHTML = '<div class="loading-text">Nenhum lançamento futuro encontrado no momento.</div>';
             return;
         }
 
         movieTrack.innerHTML = '';
 
         for (const movie of data.results) {
-            const card        = document.createElement('div');
-            card.className    = 'movie-card';
+            const card     = document.createElement('div');
+            card.className = 'movie-card';
 
             const posterUrl   = movie.poster_path
                 ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
                 : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400';
-            const releaseDate = movie.release_date ? movie.release_date.split('-').reverse().join('/') : 'Em breve';
+            const releaseDate = movie.release_date
+                ? movie.release_date.split('-').reverse().join('/')
+                : 'Em breve';
             const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : '';
             const genreNames  = (movie.genre_ids || []).slice(0, 2).map(id => GENRES[id]).filter(Boolean).join(' • ');
             const comingSoon  = isComingSoon(movie.release_date);
@@ -80,15 +86,16 @@ async function fetchUpcomingMovies() {
                     <div class="movie-meta">📆 Estreia: ${releaseDate}${releaseYear ? ' (' + releaseYear + ')' : ''}</div>
                     ${genreNames  ? `<div class="movie-meta">🎭 ${genreNames}</div>` : ''}
                     ${directorHtml}
-                    <div class="movie-meta movie-rating">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</div>
+                    <div class="movie-meta movie-rating">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'Em breve'}</div>
                 </div>`;
             movieTrack.appendChild(card);
         }
 
+        // Duplica cards para loop infinito
         Array.from(movieTrack.children).forEach(c => movieTrack.appendChild(c.cloneNode(true)));
 
     } catch (err) {
-        console.error('Erro TMDB:', err);
+        console.error('Erro carrossel:', err);
         movieTrack.innerHTML = '<div class="loading-text">Erro ao carregar lançamentos. Tente novamente mais tarde.</div>';
     }
 }
@@ -107,7 +114,7 @@ nextBtn.addEventListener('click', () => {
         }, 20);
     } else {
         movieTrack.style.transition = 'transform 0.5s ease-in-out';
-        movieTrack.style.transform = `translateX(-${scrollAmount}px)`;
+        movieTrack.style.transform  = `translateX(-${scrollAmount}px)`;
     }
 });
 
@@ -117,7 +124,7 @@ prevBtn.addEventListener('click', () => {
     if (scrollAmount < 0) {
         movieTrack.style.transition = 'none';
         scrollAmount = maxScroll - cardWidth;
-        movieTrack.style.transform = `translateX(-${scrollAmount}px)`;
+        movieTrack.style.transform  = `translateX(-${scrollAmount}px)`;
         setTimeout(() => {
             movieTrack.style.transition = 'transform 0.5s ease-in-out';
             scrollAmount -= cardWidth;
@@ -126,7 +133,7 @@ prevBtn.addEventListener('click', () => {
         }, 20);
     } else {
         movieTrack.style.transition = 'transform 0.5s ease-in-out';
-        movieTrack.style.transform = `translateX(-${scrollAmount}px)`;
+        movieTrack.style.transform  = `translateX(-${scrollAmount}px)`;
     }
 });
 

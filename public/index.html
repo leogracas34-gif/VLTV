@@ -25,27 +25,145 @@
         </nav>
     </header>
 
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Sua Experiência de Cinema em Casa</h1>
-            <p>Acesse milhares de canais, filmes e séries com estabilidade total e a melhor qualidade de imagem do mercado.</p>
-            <button class="btn-cta" onclick="openModal('Geral')">Solicitar Teste Grátis</button>
-        </div>
-    </section>
+    <!-- ═══════════════════════════════════════════
+         HERO — Slider cinematográfico animado
+    ════════════════════════════════════════════ -->
+    <section class="hero-slider" id="heroSlider">
 
-    <section class="tmdb-section" id="lancamentos">
-        <h2>Próximas Estreias (Cinema & Streaming)</h2>
-        <div class="carousel-container">
-            <button class="carousel-btn prev-btn" id="prevBtn">&#10094;</button>
-            <div class="carousel-track-container">
-                <div class="carousel-track" id="movieTrack">
-                    <div class="loading-text">Carregando lançamentos em tempo real...</div>
+        <!-- Slide 1 -->
+        <div class="slide active" style="--bg: url('https://images.unsplash.com/photo-1574375927938-d5a98e8edd86?q=80&w=1920')">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <div class="slide-badge">📺 4K · Full HD · HD</div>
+                <h1>Sua Experiência de<br><span class="highlight">Cinema em Casa</span></h1>
+                <p>Milhares de canais, filmes e séries com estabilidade total e a melhor qualidade de imagem do mercado.</p>
+                <div class="hero-actions">
+                    <button class="btn-cta pulse" onclick="openModal('Geral')">🎬 Solicitar Teste Grátis</button>
+                    <a href="#planos" class="btn-outline">Ver Planos</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat"><span class="stat-num">+10.000</span><span class="stat-label">Canais</span></div>
+                    <div class="stat-divider"></div>
+                    <div class="stat"><span class="stat-num">+50.000</span><span class="stat-label">Filmes & Séries</span></div>
+                    <div class="stat-divider"></div>
+                    <div class="stat"><span class="stat-num">99,9%</span><span class="stat-label">Estabilidade</span></div>
                 </div>
             </div>
-            <button class="carousel-btn next-btn" id="nextBtn">&#10095;</button>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide" style="--bg: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920')">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <div class="slide-badge">🔥 Sem Fidelidade</div>
+                <h1>Cancele Quando<br><span class="highlight">Quiser</span></h1>
+                <p>Sem contratos longos, sem multa e sem burocracia. Você tem total liberdade para assinar e cancelar quando quiser.</p>
+                <div class="hero-actions">
+                    <button class="btn-cta pulse" onclick="openModal('Geral')">🎬 Solicitar Teste Grátis</button>
+                    <a href="#planos" class="btn-outline">Ver Planos</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat"><span class="stat-num">3h</span><span class="stat-label">Teste Grátis</span></div>
+                    <div class="stat-divider"></div>
+                    <div class="stat"><span class="stat-num">0</span><span class="stat-label">Fidelidade</span></div>
+                    <div class="stat-divider"></div>
+                    <div class="stat"><span class="stat-num">24h</span><span class="stat-label">Suporte</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide" style="--bg: url('https://images.unsplash.com/photo-1593784991095-a205069470b6?q=80&w=1920')">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <div class="slide-badge">📱 Todos os Dispositivos</div>
+                <h1>Em Qualquer Tela,<br><span class="highlight">A Qualquer Hora</span></h1>
+                <p>TV Smart, celular, Fire Stick, notebook ou TV Box. Instale em quantos aparelhos quiser e assista onde estiver.</p>
+                <div class="hero-actions">
+                    <button class="btn-cta pulse" onclick="openModal('Geral')">🎬 Solicitar Teste Grátis</button>
+                    <a href="#planos" class="btn-outline">Ver Planos</a>
+                </div>
+                <div class="hero-devices">
+                    <span>📺 TV Smart</span>
+                    <span>📱 Celular</span>
+                    <span>🔥 Fire Stick</span>
+                    <span>💻 Notebook</span>
+                    <span>📦 TV Box</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles do slider -->
+        <button class="slider-arrow slider-prev" id="sliderPrev">&#10094;</button>
+        <button class="slider-arrow slider-next" id="sliderNext">&#10095;</button>
+        <div class="slider-dots" id="sliderDots">
+            <span class="dot active" data-index="0"></span>
+            <span class="dot" data-index="1"></span>
+            <span class="dot" data-index="2"></span>
         </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════
+         DESTAQUES — Cards fixos de conteúdo
+    ════════════════════════════════════════════ -->
+    <section class="highlights-section" id="lancamentos">
+        <h2>🎬 Destaques do Catálogo</h2>
+        <p class="section-sub">Uma amostra do que espera por você no VLTV Play</p>
+        <div class="highlights-grid">
+            <div class="hl-card" style="--cover: url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=600')">
+                <div class="hl-overlay"></div>
+                <div class="hl-info">
+                    <span class="hl-tag">Cinema</span>
+                    <div class="hl-title">Blockbusters</div>
+                    <div class="hl-sub">Os maiores lançamentos em 4K</div>
+                </div>
+            </div>
+            <div class="hl-card" style="--cover: url('https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=600')">
+                <div class="hl-overlay"></div>
+                <div class="hl-info">
+                    <span class="hl-tag">Séries</span>
+                    <div class="hl-title">Séries Completas</div>
+                    <div class="hl-sub">Maratone sem interrupções</div>
+                </div>
+            </div>
+            <div class="hl-card" style="--cover: url('https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=600')">
+                <div class="hl-overlay"></div>
+                <div class="hl-info">
+                    <span class="hl-tag">Ao Vivo</span>
+                    <div class="hl-title">Canais ao Vivo</div>
+                    <div class="hl-sub">+10.000 canais 24h por dia</div>
+                </div>
+            </div>
+            <div class="hl-card" style="--cover: url('https://images.unsplash.com/photo-1459865264687-595d652de67e?q=80&w=600')">
+                <div class="hl-overlay"></div>
+                <div class="hl-info">
+                    <span class="hl-tag">Esportes</span>
+                    <div class="hl-title">Esportes ao Vivo</div>
+                    <div class="hl-sub">Futebol, F1, UFC e muito mais</div>
+                </div>
+            </div>
+            <div class="hl-card" style="--cover: url('https://images.unsplash.com/photo-1611162616475-46b635cb6868?q=80&w=600')">
+                <div class="hl-overlay"></div>
+                <div class="hl-info">
+                    <span class="hl-tag">Kids</span>
+                    <div class="hl-title">Conteúdo Infantil</div>
+                    <div class="hl-sub">Diversão segura para os pequenos</div>
+                </div>
+            </div>
+            <div class="hl-card cta-card" onclick="openModal('Geral')">
+                <div class="cta-card-inner">
+                    <div class="cta-icon">▶</div>
+                    <div class="cta-card-title">Teste Agora</div>
+                    <div class="cta-card-sub">3 horas grátis, sem cartão</div>
+                    <div class="cta-card-btn">Solicitar Teste</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         PLANOS
+    ════════════════════════════════════════════ -->
     <section class="plans-section" id="planos">
         <h2>Escolha Seu Plano Perfeito</h2>
         <p class="subtitle">Acesso completo sem fidelidade. Selecione a melhor opção para você.</p>
@@ -63,7 +181,6 @@
                 </div>
                 <button class="btn-plan" onclick="openModal('Plano Mensal')">Solicitar Teste</button>
             </div>
-
             <div class="plan-card">
                 <div>
                     <div class="plan-name">Plano Trimestral</div>
@@ -77,7 +194,6 @@
                 </div>
                 <button class="btn-plan" onclick="openModal('Plano Trimestral')">Solicitar Teste</button>
             </div>
-
             <div class="plan-card featured">
                 <div class="badge">Mais Vendido</div>
                 <div>
@@ -92,7 +208,6 @@
                 </div>
                 <button class="btn-plan" onclick="openModal('Plano Semestral')">Solicitar Teste</button>
             </div>
-
             <div class="plan-card">
                 <div>
                     <div class="plan-name">Plano Anual</div>
@@ -106,7 +221,6 @@
                 </div>
                 <button class="btn-plan" onclick="openModal('Plano Anual')">Solicitar Teste</button>
             </div>
-
             <div class="plan-card vitalicio-card">
                 <div class="badge-gold">Acesso Permanente</div>
                 <div>
@@ -124,27 +238,38 @@
         </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════
+         FAQ
+    ════════════════════════════════════════════ -->
     <section class="faq-section" id="faq">
         <h2>Perguntas Frequentes</h2>
-
         <div class="faq-item">
             <div class="faq-question">Como funciona a liberação do sinal após o teste?</div>
             <div class="faq-answer">A liberação acontece imediatamente após a confirmação do pagamento. Nossa equipe envia as credenciais de acesso direto no seu WhatsApp com o tutorial passo a passo para o seu aparelho.</div>
         </div>
-
         <div class="faq-item">
             <div class="faq-question">Quais são as formas de pagamento disponíveis?</div>
             <div class="faq-answer">Aceitamos PIX (ativação imediata automática), Cartão de Crédito e Boleto Bancário. O PIX é compensado na hora — o acesso é liberado automaticamente em minutos. No boleto, a liberação ocorre após a compensação bancária (até 2 dias úteis) ou imediatamente se o comprovante for enviado no nosso WhatsApp.</div>
         </div>
-
         <div class="faq-item">
             <div class="faq-question">Posso usar em mais de um aparelho?</div>
             <div class="faq-answer">Você pode instalar o aplicativo em quantos aparelhos desejar, mas o acesso simultâneo depende da quantidade de telas contratadas em seu plano escolhido.</div>
         </div>
-
         <div class="faq-item">
             <div class="faq-question">Quanto tempo leva para ativar após o pagamento?</div>
             <div class="faq-answer">Via PIX: ativação imediata, em minutos. Via Cartão de Crédito: ativação em até 1 hora após confirmação. Via Boleto: ativação após compensação bancária (até 2 dias úteis) ou imediata se o comprovante for enviado no nosso WhatsApp.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">Quanto tempo dura o teste gratuito?</div>
+            <div class="faq-answer">O teste gratuito tem duração de 3 horas com acesso completo ao serviço. É liberado imediatamente pela nossa equipe após a solicitação.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">Preciso de internet para usar o IPTV?</div>
+            <div class="faq-answer">Sim, é necessário ter conexão com a internet. Recomendamos pelo menos 10 Mbps para HD e 25 Mbps para conteúdo em 4K.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">Tem fidelidade ou multa por cancelamento?</div>
+            <div class="faq-answer">Não! Nenhum plano possui fidelidade. Você pode cancelar quando quiser, sem multa e sem burocracia.</div>
         </div>
     </section>
 
@@ -152,7 +277,7 @@
         <p>&copy; 2026 VLTV Play. Todos os direitos reservados. O melhor sistema de streaming completo.</p>
     </footer>
 
-    <!-- Modal de Planos -->
+    <!-- Modal -->
     <div class="modal-overlay" id="testModal">
         <div class="modal-box">
             <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -169,7 +294,7 @@
         </div>
     </div>
 
-    <!-- Botão Flutuante WhatsApp -->
+    <!-- Botão WhatsApp -->
     <a class="whatsapp-float" href="https://api.whatsapp.com/send?phone=5531998491711&text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20o%20VLTV%20Play." target="_blank" title="Fale conosco no WhatsApp">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
@@ -177,7 +302,7 @@
         <span class="whatsapp-tooltip">Fale Conosco!</span>
     </a>
 
-    <!-- Widget de Chat com IA -->
+    <!-- Chat IA -->
     <div class="chat-widget" id="chatWidget">
         <div class="chat-toggle" id="chatToggle" onclick="toggleChat()" title="Assistente Virtual VLTV">
             <svg class="chat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -188,7 +313,6 @@
             </svg>
             <span class="chat-badge" id="chatBadge">1</span>
         </div>
-
         <div class="chat-box" id="chatBox">
             <div class="chat-header">
                 <div class="chat-header-info">
@@ -200,14 +324,12 @@
                 </div>
                 <button class="chat-close-btn" onclick="toggleChat()">✕</button>
             </div>
-
             <div class="chat-messages" id="chatMessages">
                 <div class="chat-msg bot">
                     <div class="chat-bubble">Olá! 👋 Sou o assistente virtual da <strong>VLTV Play</strong>. Posso tirar suas dúvidas sobre planos, preços, formas de pagamento e muito mais! Como posso te ajudar?</div>
                     <div class="chat-time">agora</div>
                 </div>
             </div>
-
             <div class="chat-input-area">
                 <input type="text" class="chat-input" id="chatInput" placeholder="Digite sua dúvida..." onkeydown="handleChatKey(event)" />
                 <button class="chat-send-btn" onclick="sendChatMessage()">

@@ -10,7 +10,7 @@ const fs    = require('fs');
 const path  = require('path');
 const url   = require('url');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'SUA_CHAVE_AQUI';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCwMWurZRdnlJNLDKlSbB_ne2HfafKKnDk';
 const TMDB_API_KEY   = process.env.TMDB_API_KEY   || '9b73f5dd15b8165b1b57419be2f29128';
 const PORT           = process.env.PORT || 3000;
 const STATIC_DIR     = path.join(__dirname, 'public');

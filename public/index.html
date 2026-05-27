@@ -29,7 +29,7 @@
 <section class="hero">
     <div class="hero-content">
         <div class="hero-badge">📺 4K · Full HD · HD · Sem Fidelidade</div>
-        <h1>Sua Experiência de<br><span class="red">Cinema em Casa</span></h1>
+        <h1>Sua Experience de<br><span class="red">Cinema em Casa</span></h1>
         <p>Milhares de canais, filmes e séries com estabilidade total e a melhor qualidade de imagem do mercado.</p>
         <div class="hero-btns">
             <button class="btn-cta pulse" onclick="openModal('Geral')">🎬 Solicitar Teste Grátis</button>
@@ -61,10 +61,10 @@
 
 <section class="releases-section" id="lancamentos">
     <div class="releases-header">
-        <h2>🎬 Novidades e Lançamentos</h2>
+        <h2>🎬 Novidades do Streaming</h2>
         <div class="tabs">
             <button class="tab active" data-tab="nowplaying" onclick="switchTab('nowplaying', this)">🍿 Em Cartaz nos Cinemas</button>
-            <button class="tab" data-tab="movies" onclick="switchTab('movies', this)">🎥 Lançamentos (Filmes)</button>
+            <button class="tab" data-tab="movies" onclick="switchTab('movies', this)">🎥 Filmes</button>
             <button class="tab" data-tab="series" onclick="switchTab('series', this)">📺 Séries</button>
         </div>
     </div>
@@ -106,12 +106,159 @@
     </div>
 </section>
 
+<section class="plans-section" id="planos">
+    <h2>Escolha Seu Plano</h2>
+    <p class="subtitle">Sem fidelidade. Cancele quando quiser.</p>
+    <div class="plans-grid">
+        <div class="plan-card">
+            <div class="plan-name">Mensal</div>
+            <div class="plan-price">R$ 40<span>/mês</span></div>
+            <ul class="plan-features">
+                <li>HD, Full HD e 4K</li>
+                <li>Filmes e Séries</li>
+                <li>Suporte Técnico</li>
+                <li>1 Tela Simultânea</li>
+            </ul>
+            <button class="plan-btn" onclick="openModal('Mensal')">Assinar Agora</button>
+        </div>
+        <div class="plan-card">
+            <div class="plan-name">Trimestral</div>
+            <div class="plan-price">R$ 110<span>/3 meses</span></div>
+            <ul class="plan-features">
+                <li>HD, Full HD e 4K</li>
+                <li>Filmes e Séries</li>
+                <li>Suporte Técnico</li>
+                <li>Grade Completa de Canais</li>
+            </ul>
+            <button class="plan-btn" onclick="openModal('Trimestral')">Assinar Agora</button>
+        </div>
+        <div class="plan-card featured">
+            <div class="plan-badge">Mais Vendido</div>
+            <div class="plan-name">Semestral</div>
+            <div class="plan-price">R$ 210<span>/6 meses</span></div>
+            <ul class="plan-features">
+                <li>Servidores Dedicados</li>
+                <li>Guia de Programação (EPG)</li>
+                <li>Suporte Prioritário</li>
+                <li>Máxima Estabilidade</li>
+            </ul>
+            <button class="plan-btn" onclick="openModal('Semestral')">Assinar Agora</button>
+        </div>
+        <div class="plan-card">
+            <div class="plan-name">Anual</div>
+            <div class="plan-price">R$ 400<span>/ano</span></div>
+            <ul class="plan-features">
+                <li>Máxima Economia</li>
+                <li>Suporte 24h</li>
+                <li>Acesso Ultra Premium</li>
+                <li>Tudo Liberado</li>
+            </ul>
+            <button class="plan-btn" onclick="openModal('Anual')">Assinar Agora</button>
+        </div>
+        <div class="plan-card vitalicio">
+            <div class="plan-badge gold">Único</div>
+            <div class="plan-name">Vitalício</div>
+            <div class="plan-price">R$ 569<span>/Único</span></div>
+            <ul class="plan-features">
+                <li>Sem Mensalidades</li>
+                <li>Acesso Permanente</li>
+                <li>Atualizações Inclusas</li>
+                <li>Suporte VIP Eterno</li>
+            </ul>
+            <button class="plan-btn gold" onclick="openModal('Vitalício')">Garantir Acesso</button>
+        </div>
+    </div>
+</section>
+
+<section class="faq-section" id="faq">
+    <h2>Perguntas Frequentes</h2>
+    <div class="faq-grid">
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">Preciso de antenas para usar o serviço? <span>+</span></div>
+            <div class="faq-a">Não! O nosso sistema funciona 100% via internet. Basta instalar o aplicativo no seu dispositivo configurado e começar a assistir.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">Quais dispositivos são compatíveis? <span>+</span></div>
+            <div class="faq-a">Compatível com Smart TVs (Samsung, LG, Android TV), Celulares (Android/iOS), TV Box, Fire Stick, Computadores e Roku.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">Como recebo o acesso após o pagamento? <span>+</span></div>
+            <div class="faq-a">O envio é imediato. Assim que o pagamento via PIX é confirmado, o nosso sistema envia as credenciais e o passo a passo no seu WhatsApp.</div>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">Posso testar antes de assinar? <span>+</span></div>
+            <div class="faq-a">Com certeza! Oferecemos um teste totalmente gratuito de 3 horas para você avaliar a qualidade e estabilidade dos canais e catálogo.</div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>&copy; 2026 VLTV Play. Todos os direitos reservados. Este site é um reprodutor de listas privadas e não hospeda canais em seus servidores.</p>
+</footer>
+
+<div class="modal-overlay" id="modalCapture">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-header">
+            <h3 id="modalTitle">Solicitar Teste Grátis</h3>
+            <p>Preencha os dados abaixo para receber o seu acesso instantâneo no WhatsApp.</p>
+        </div>
+        <form id="formCapture" onsubmit="handleCapture(event)">
+            <div class="form-group">
+                <label>Seu Nome</label>
+                <input type="text" id="capName" required placeholder="Ex: João Silva">
+            </div>
+            <div class="form-group">
+                <label>Seu WhatsApp</label>
+                <input type="tel" id="capTel" required placeholder="Ex: (31) 99999-9999">
+            </div>
+            <div class="form-group">
+                <label>Aparelho que vai usar</label>
+                <select id="capDevice" required>
+                    <option value="">Selecione seu aparelho...</option>
+                    <option value="Smart TV">Smart TV (Samsung/LG/Philco)</option>
+                    <option value="TV Android / TCL">TV Android / TCL / Philips</option>
+                    <option value="TV Box / Fire Stick">TV Box / Fire Stick</option>
+                    <option value="Celular Android / iPhone">Celular Android / iPhone</option>
+                    <option value="Computador / Notebook">Computador / Notebook</option>
+                    <option value="Roku Express">Roku Express / Roku TV</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-cta style-submit">⚡ Receber Acesso no WhatsApp</button>
+        </form>
+    </div>
+</div>
+
+<div class="media-modal-overlay" id="mediaModal">
+    <div class="media-modal-box">
+        <button class="media-modal-close" onclick="closeMediaModal()">✕</button>
+        <div class="media-modal-body">
+            <img id="mPoster" class="media-poster" src="" alt="Poster">
+            <div class="media-modal-info-panel">
+                <h3 id="mTitle">Título da Mídia</h3>
+                <div class="media-meta-line">
+                    <span id="mDate">📆 00/00/0000</span>
+                    <span id="mRating">⭐ 0.0</span>
+                </div>
+                <div class="media-genres" id="mGenres"></div>
+                <p id="mOverview">Sinopse da mídia carregada aqui...</p>
+                <div class="media-cast-box">
+                    <strong>Elenco principal:</strong>
+                    <p id="mCast">Carregando elenco...</p>
+                </div>
+                <button class="btn-cta" onclick="closeMediaModal(); openModal('Geral')">🎬 Assistir Completo na VLTV</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="chat-widget" id="chatWidget" onclick="toggleChat()">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M12 2C6.48 2 2 5.93 2 10.75c0 2.76 1.5 5.2 3.82 6.74L5 21l3.5-1.5c1.12.33 2.3.5 3.5.5 5.52 0 10-3.93 10-8.75S17.52 2 12 2zm0 16c-1.04 0-2.04-.15-3-.42l-2 .85.5-1.85C5.55 15.3 4 13.18 4 10.75 4 6.9 7.58 3.75 12 3.75s8 3.15 8 7-3.58 7-8 7z"/>
     </svg>
     <span class="chat-badge" id="chatBadge">1</span>
 </div>
+
 <div class="chat-box" id="chatBox">
     <div class="chat-header">
         <div class="chat-header-info">

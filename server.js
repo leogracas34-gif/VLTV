@@ -31,6 +31,8 @@ const SYSTEM_INSTRUCTION = `Você é o assistente virtual oficial da VLTV Play, 
 Responda SEMPRE em português do Brasil, com tom simpático, objetivo e profissional.
 Nunca se identifique como IA genérica ou mencione o Google ou Gemini — você é o Assistente VLTV.
 
+ATENÇÃO: Você deve responder de fato às perguntas dos clientes usando a nossa base de dados abaixo. NÃO envie mensagens mandando chamar no WhatsApp logo na primeira mensagem a menos que o cliente explicitamente queira fechar uma assinatura de plano, pedir ativação do teste grátis ou precise de suporte avançado que não esteja detalhado aqui.
+
 == PLANOS E PREÇOS ==
 - Plano Mensal:     R$ 40/mês    | 1 dispositivo simultâneo | HD, Full HD e 4K
 - Plano Trimestral: R$ 110/3 meses | todos os benefícios | grade completa de canais
@@ -71,156 +73,86 @@ As credenciais são enviadas pelo WhatsApp com tutorial passo a passo para o apa
 WhatsApp direto com a equipe. Suporte prioritário nos planos Semestral e Anual. VIP no Vitalício.
 
 == REGRAS ==
-- Se não souber algo com certeza, oriente o cliente a entrar em contato pelo WhatsApp.
-- Respostas curtas e diretas — máximo 3 parágrafos ou lista simples.
-- Nunca invente informações sobre preços ou funcionalidades que não estejam listadas acima.`;
-
-// ── Helpers ──
-function sendJSON(res, status, obj) {
-    res.writeHead(status, {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-    });
-    res.end(JSON.stringify(obj));
-}
+- Trate o usuário com respeito.
+- Se a dúvida não estiver descrita aqui, instrua cordialmente o cliente a abrir um chamado com os atendentes humanos no WhatsApp.`;
 
 function serveStatic(res, filePath) {
-    const ext = path.extname(filePath).toLowerCase();
     fs.readFile(filePath, (err, data) => {
-        if (err) { res.writeHead(404); res.end('Not found'); return; }
-        res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
+        if (err) {
+            res.writeHead(err.code === 'ENOENT' ? 404 : 500);
+            return res.end(err.code === 'ENOENT' ? '404 Não Encontrado' : '500 Erro Servidor');
+        }
+        res.writeHead(200, { 'Content-Type': MIME[path.extname(filePath)] || 'text/plain' });
         res.end(data);
     });
 }
 
-// ── Proxy TMDB (chamada servidor → TMDB, sem CORS) ──
-function callTMDB(tmdbPath) {
-    return new Promise((resolve, reject) => {
-        const options = {
-            hostname: 'api.themoviedb.org',
-            path:     tmdbPath,
-            method:   'GET',
-            headers:  { 'Accept': 'application/json' },
-        };
-        const req = https.request(options, (apiRes) => {
-            let raw = '';
-            apiRes.on('data', chunk => raw += chunk);
-            apiRes.on('end', () => {
-                try { resolve(JSON.parse(raw)); }
-                catch (e) { reject(new Error('Resposta inválida do TMDB')); }
-            });
-        });
-        req.on('error', reject);
-        req.end();
-    });
+function sendJSON(res, statusCode, data) {
+    res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(data));
 }
 
-// ── Chamada à API Gemini ──
 function callGemini(history) {
     return new Promise((resolve, reject) => {
-        const body = JSON.stringify({
-            system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+        const payload = JSON.stringify({
+            system_instruction: { parts: { text: SYSTEM_INSTRUCTION } },
             contents: history,
-            generationConfig: {
-                temperature:     0.7,
-                maxOutputTokens: 800,
-            }
+            generationConfig: { temperature: 0.5, maxOutputTokens: 250 }
         });
 
-        const options = {
+        const req = https.request({
             hostname: 'generativelanguage.googleapis.com',
-            path:     `/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-            method:   'POST',
-            headers: {
-                'Content-Type':   'application/json',
-                'Content-Length': Buffer.byteLength(body),
-            },
-        };
-
-        const req = https.request(options, (apiRes) => {
-            let raw = '';
-            apiRes.on('data', chunk => raw += chunk);
-            apiRes.on('end', () => {
-                try {
-                    const parsed = JSON.parse(raw);
-                    resolve(parsed);
-                } catch (e) {
-                    reject(new Error('Resposta inválida da API Gemini'));
-                }
-            });
+            path: '/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_API_KEY,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }
+        }, res => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => resolve(JSON.parse(data)));
         });
 
         req.on('error', reject);
-        req.write(body);
+        req.write(payload);
         req.end();
     });
 }
 
-// ── Busca lançamentos futuros do TMDB (a partir de hoje) ──
-async function fetchUpcomingFiltered() {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    let allResults = [];
+const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+    const reqPath = parsedUrl.pathname;
 
-    // Busca 3 páginas para garantir filmes suficientes após filtro
-    for (let page = 1; page <= 3; page++) {
-        const data = await callTMDB(
-            `/3/discover/movie?api_key=${TMDB_API_KEY}&language=pt-BR&sort_by=release_date.asc&primary_release_date.gte=${today}&page=${page}`
-        );
-        if (data.results && data.results.length > 0) {
-            allResults = allResults.concat(data.results);
-        }
-    }
-
-    // Garante só futuros, ordena por data e limita a 15
-    const filtered = allResults
-        .filter(m => m.release_date && m.release_date >= today)
-        .sort((a, b) => a.release_date.localeCompare(b.release_date))
-        .slice(0, 15);
-
-    return filtered;
-}
-
-// ── Servidor ──
-const server = http.createServer(async (req, res) => {
-    const parsed  = url.parse(req.url, true);
-    const reqPath = parsed.pathname;
-
-    // CORS preflight
-    if (req.method === 'OPTIONS') {
-        res.writeHead(204, {
-            'Access-Control-Allow-Origin':  '*',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+    // ── Proxy TMDB ──
+    if (reqPath === '/api/tmdb') {
+        const endpoint = parsedUrl.query.endpoint;
+        if (!endpoint) return sendJSON(res, 400, { error: 'endpoint ausente' });
+        
+        const tmdbUrl = `https://api.themoviedb.org/3${endpoint}&api_key=${TMDB_API_KEY}`;
+        https.get(tmdbUrl, tmdbRes => {
+            let data = '';
+            tmdbRes.on('data', chunk => data += chunk);
+            tmdbRes.on('end', () => {
+                res.writeHead(tmdbRes.statusCode, { 'Content-Type': 'application/json' });
+                res.end(data);
+            });
+        }).on('error', err => {
+            sendJSON(res, 500, { error: 'Erro no proxy TMDB' });
         });
-        res.end();
         return;
     }
 
-    // ── Rota /api/upcoming — filmes futuros filtrados ──
-    if (reqPath === '/api/upcoming' && req.method === 'GET') {
-        try {
-            const movies = await fetchUpcomingFiltered();
-            sendJSON(res, 200, { results: movies });
-        } catch (err) {
-            console.error('[/api/upcoming] Erro:', err.message);
-            sendJSON(res, 500, { error: 'Erro ao buscar filmes' });
-        }
-        return;
-    }
-
-    // ── Rota /api/tmdb — proxy genérico para imagens e créditos ──
-    if (reqPath === '/api/tmdb' && req.method === 'GET') {
-        const endpoint = parsed.query.endpoint || '';
-        if (!endpoint) return sendJSON(res, 400, { error: 'endpoint obrigatório' });
-        const sep      = endpoint.includes('?') ? '&' : '?';
-        const fullPath = `/3/${endpoint}${sep}api_key=${TMDB_API_KEY}`;
-        try {
-            const data = await callTMDB(fullPath);
-            sendJSON(res, 200, data);
-        } catch (err) {
-            console.error('[/api/tmdb] Erro:', err.message);
-            sendJSON(res, 500, { error: 'Erro ao buscar dados do TMDB' });
-        }
+    // ── Endpoint específico do app para próximos lançamentos ──
+    if (reqPath === '/api/upcoming') {
+        const tmdbUrl = `https://api.themoviedb.org/3/movie/upcoming?language=pt-BR&page=1&api_key=${TMDB_API_KEY}`;
+        https.get(tmdbUrl, tmdbRes => {
+            let data = '';
+            tmdbRes.on('data', chunk => data += chunk);
+            tmdbRes.on('end', () => {
+                res.writeHead(tmdbRes.statusCode, { 'Content-Type': 'application/json' });
+                res.end(data);
+            });
+        }).on('error', err => {
+            sendJSON(res, 500, { error: 'Erro no proxy TMDB' });
+        });
         return;
     }
 
@@ -256,7 +188,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`✅  VLTV Play rodando em http://localhost:${PORT}`);
-    console.log(`🔑  Gemini: ${GEMINI_API_KEY === 'SUA_CHAVE_AQUI' ? '⚠️  NÃO CONFIGURADA' : 'OK ✓'}`);
-    console.log(`🎬  TMDB: OK ✓`);
+    console.log(`✅ VLTV Play rodando em http://localhost:${PORT}`);
 });

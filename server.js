@@ -154,6 +154,7 @@ function callFootball(endpoint) {
 
 function callGemini(history) {
     return new Promise((resolve, reject) => {
+        // system_instruction como campo separado — suportado em v1beta
         const bodyObj = {
             system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
             contents: history,
@@ -162,18 +163,12 @@ function callGemini(history) {
                 maxOutputTokens: 1000,
                 topP:            0.9,
             },
-            safetySettings: [
-                { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_NONE' },
-                { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_NONE' },
-                { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-                { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-            ],
         };
         const body = JSON.stringify(bodyObj);
 
         const req = https.request({
             hostname: 'generativelanguage.googleapis.com',
-            path:     `/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+            path:     `/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
             method:   'POST',
             headers:  {
                 'Content-Type':   'application/json',

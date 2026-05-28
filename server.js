@@ -365,8 +365,8 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    // Rota /api/gerarteste — Busca os dados completos do seu painel Sigma
-    if (reqPath === '/api/gerarteste' && req.method === 'POST') {
+        // Rota /api/gerarteste — Ajustada para aceitar POST ou GET
+    if (reqPath === '/api/gerarteste') {
         try {
             // Este é o link completo que o seu painel gera para cada teste
             const urlSigma = 'http://svn2.shop/get.php?username=TESTE_AUTO&password=TESTE_AUTO&type=m3u_plus&output=mpegts';

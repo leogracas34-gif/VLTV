@@ -197,6 +197,47 @@ function callGemini(history) {
     });
 }
 
+// =============================================
+// callSigma — Cria linha de teste no painel Sigma
+// =============================================
+function callSigma(username, password) {
+    return new Promise((resolve, reject) => {
+        // Objeto com as credenciais que o painel Sigma exige para gerar o teste
+        const bodyObj = {
+            username: username,
+            password: password
+        };
+        const body = JSON.stringify(bodyObj);
+
+        const req = https.request({
+            hostname: 'painel.sigmatv.com', // Substitua pelo domínio correto do seu painel Sigma se for diferente
+            path: '/api/v1/test/generate',   // Substitua pelo endpoint exato fornecido pelo seu painel Sigma
+            method: 'POST',
+            headers: {
+                'Content-Type':   'application/json',
+                'Content-Length': Buffer.byteLength(body),
+                // Se o seu painel exigir algum Token de Revendedor ou API Key no Header, adicione abaixo:
+                // 'Authorization': 'Bearer SEU_TOKEN_AQUI'
+            },
+        }, (apiRes) => {
+            let raw = '';
+            apiRes.on('data', chunk => raw += chunk);
+            apiRes.on('end', () => {
+                try {
+                    resolve({ data: JSON.parse(raw), status: apiRes.statusCode });
+                } catch (e) {
+                    reject(new Error('Sigma: resposta JSON inválida'));
+                }
+            });
+        });
+
+        req.on('error', e => reject(e));
+        req.setTimeout(10000, () => { req.destroy(); reject(new Error('Sigma: timeout')); });
+        req.write(body);
+        req.end();
+    });
+}
+
 async function fetchNowPlayingFiltered(page) {
     page = page || 1;
     const today    = new Date().toISOString().split('T')[0];
@@ -319,6 +360,71 @@ const server = http.createServer(async (req, res) => {
             } catch (err) {
                 console.error('[chat]', err.message);
                 sendJSON(res, 500, { error: 'Erro interno' });
+            }
+        });
+        return;
+    }
+
+    // =============================================
+    // Rota /api/gerarteste — AutoResponder WhatsApp
+    // =============================================
+    if (reqPath === '/api/gerarteste' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', async () => {
+            try {
+                // O AutoResponder envia os dados encapsulados em formato JSON
+                const parsedBody = JSON.parse(body);
+
+                // Extrai o número do cliente (remetente) e a mensagem enviada
+                const clienteQuery = parsedBody.query || '';
+                const clienteMsg   = clienteQuery.message || '';
+                const clienteNum   = clienteQuery.sender  || '';
+
+                console.log(`[AutoResponder] Solicitação recebida do número: ${clienteNum}`);
+
+                // 1. Gera as credenciais aleatórias para a linha de teste
+                const aleatorio     = Math.floor(100000 + Math.random() * 900000);
+                const usernameTeste = `vltv${aleatorio}`;
+                const passwordTeste = `${aleatorio}`;
+
+                // 2. Injeta o teste no painel Sigma
+                const sigmaResult = await callSigma(usernameTeste, passwordTeste);
+
+                if (sigmaResult.status !== 200 && sigmaResult.status !== 201) {
+                    console.error('[AutoResponder] Falha ao criar teste no painel Sigma:', sigmaResult.data);
+                    return sendJSON(res, 200, {
+                        replies: [{
+                            text: 'Olá! No momento nosso sistema automático está passando por uma manutenção rápida. Por favor, aguarde alguns instantes que um atendente humano irá liberar o seu teste manualmente! 💬'
+                        }]
+                    });
+                }
+
+                // 3. Monta o texto de resposta que o AutoResponder envia ao WhatsApp do cliente
+                const textoResposta =
+                    `*Seu Teste Grátis de 3 horas está Liberado!* 🎬🍿\n\n` +
+                    `Aqui estão suas credenciais de acesso:\n` +
+                    `👤 *Usuário:* ${usernameTeste}\n` +
+                    `🔑 *Senha:* ${passwordTeste}\n` +
+                    `🌐 *URL do Servidor:* http://vltvplay.xyz:8080\n\n` +
+                    `*Como assistir:*\n` +
+                    `1️⃣ Baixe o aplicativo *VLTV Play* na loja do seu aparelho.\n` +
+                    `2️⃣ Insira o usuário e senha acima.\n\n` +
+                    `Aproveite a nossa grade completa! Se precisar de ajuda com o tutorial de instalação, basta digitar *Suporte*.`;
+
+                // Retorna no formato exato que o AutoResponder exige
+                sendJSON(res, 200, {
+                    replies: [{ text: textoResposta }]
+                });
+
+            } catch (err) {
+                console.error('[AutoResponder Error]', err.message);
+                // Resposta de segurança para o webhook não quebrar a automação
+                sendJSON(res, 200, {
+                    replies: [{
+                        text: 'Ops! Ocorreu um erro ao processar seu teste automaticamente. Um de nossos atendentes já foi notificado e vai te enviar o acesso em instantes!'
+                    }]
+                });
             }
         });
         return;

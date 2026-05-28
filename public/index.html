@@ -9,15 +9,13 @@
     <meta property="og:image" content="https://images.unsplash.com/photo-1574375927938-d5a98e8edd86?q=80&w=600">
     <meta property="og:url" content="https://vltvplay.com">
     <meta property="og:type" content="website">
-    <!-- Fonte premium sem Roboto -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ══ HEADER ══ -->
 <header id="siteHeader">
     <a class="logo" href="#">VLTV<span>Play</span></a>
     <nav>
@@ -28,20 +26,18 @@
         <a href="#faq">Dúvidas</a>
     </nav>
     <button class="header-cta" onclick="openModal('Geral')">Teste Grátis</button>
-    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()">&#9776;</button>
+    <button class="nav-hamburger" onclick="toggleMobileNav()">&#9776;</button>
 </header>
 
-<!-- Mobile Nav -->
 <div class="mobile-nav" id="mobileNav">
     <a href="#emcartaz" onclick="toggleMobileNav()">Em Cartaz</a>
     <a href="#lancamentos" onclick="toggleMobileNav()">Lançamentos</a>
     <a href="#copa" onclick="toggleMobileNav()">Copa 2026</a>
     <a href="#planos" onclick="toggleMobileNav()">Planos</a>
     <a href="#faq" onclick="toggleMobileNav()">Dúvidas</a>
-    <button class="btn-cta full-w" onclick="openModal('Geral'); toggleMobileNav()">Solicitar Teste Grátis</button>
+    <button class="btn-cta full-w" onclick="openModal('Geral');toggleMobileNav()">Solicitar Teste Grátis</button>
 </div>
 
-<!-- ══ HERO ══ -->
 <section class="hero">
     <div class="hero-bg"></div>
     <div class="hero-content">
@@ -52,26 +48,9 @@
             <button class="btn-cta pulse" onclick="openModal('Geral')">🎬 Solicitar Teste Grátis</button>
             <a href="#planos" class="btn-outline">Ver Planos</a>
         </div>
-        <div class="hero-stats">
-            <div class="stat"><span class="stat-n">+10.000</span><span class="stat-l">Canais</span></div>
-            <div class="stat-div"></div>
-            <div class="stat"><span class="stat-n">4K</span><span class="stat-l">Qualidade</span></div>
-            <div class="stat-div"></div>
-            <div class="stat"><span class="stat-n">24h</span><span class="stat-l">Suporte</span></div>
-            <div class="stat-div"></div>
-            <div class="stat"><span class="stat-n">3h</span><span class="stat-l">Teste Grátis</span></div>
-        </div>
-    </div>
-    <div class="hero-devices">
-        <div class="device-pill">📺 TV Smart</div>
-        <div class="device-pill">📱 Celular</div>
-        <div class="device-pill">💻 Notebook</div>
-        <div class="device-pill">📦 Fire Stick</div>
-        <div class="device-pill">📡 Roku TV</div>
     </div>
 </section>
 
-<!-- ══ EM CARTAZ NO CINEMA ══ -->
 <section class="content-section" id="emcartaz" style="background:#0f0f0f;">
     <div class="section-header">
         <div class="section-title-wrap">
@@ -94,7 +73,6 @@
     </div>
 </section>
 
-<!-- ══ LANÇAMENTOS COM ABAS ══ -->
 <section class="content-section" id="lancamentos">
     <div class="section-header">
         <div class="section-title-wrap">
@@ -102,11 +80,10 @@
             <h2>Próximos Lançamentos</h2>
         </div>
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('movies', this)">🎥 Filmes</button>
-            <button class="tab" onclick="switchTab('series', this)">📺 Séries</button>
+            <button class="tab active" onclick="switchTab('movies',this)">🎥 Filmes</button>
+            <button class="tab" onclick="switchTab('series',this)">📺 Séries</button>
         </div>
     </div>
-
     <div class="tab-panel active" id="panel-movies">
         <div class="carousel-wrap">
             <button class="carr-btn carr-prev" id="prevMovies">&#8249;</button>
@@ -121,7 +98,6 @@
             <button class="carr-btn carr-next" id="nextMovies">&#8250;</button>
         </div>
     </div>
-
     <div class="tab-panel" id="panel-series">
         <div class="carousel-wrap">
             <button class="carr-btn carr-prev" id="prevSeries">&#8249;</button>
@@ -138,7 +114,6 @@
     </div>
 </section>
 
-<!-- ══ COPA DO MUNDO 2026 ══ -->
 <section class="copa-section" id="copa">
     <div class="copa-header">
         <div class="copa-title-wrap">
@@ -153,121 +128,71 @@
         </div>
     </div>
 
-    <!-- Cards de grupos/destaques estáticos + dinâmicos -->
-    <div class="copa-grid" id="copaGrid">
-        <!-- Preenchido via JS -->
-        <div class="copa-info-card">
-            <div class="copa-info-icon">📅</div>
-            <div class="copa-info-title">Início</div>
-            <div class="copa-info-val">11 Jun 2026</div>
-        </div>
-        <div class="copa-info-card">
-            <div class="copa-info-icon">🏟️</div>
-            <div class="copa-info-title">Sedes</div>
-            <div class="copa-info-val">16 cidades</div>
-        </div>
-        <div class="copa-info-card">
-            <div class="copa-info-icon">🌍</div>
-            <div class="copa-info-title">Seleções</div>
-            <div class="copa-info-val">48 países</div>
-        </div>
-        <div class="copa-info-card">
-            <div class="copa-info-icon">⚽</div>
-            <div class="copa-info-title">Jogos</div>
-            <div class="copa-info-val">104 partidas</div>
-        </div>
-        <div class="copa-info-card">
-            <div class="copa-info-icon">🇧🇷</div>
-            <div class="copa-info-title">Brasil</div>
-            <div class="copa-info-val">Grupo E</div>
-        </div>
-        <div class="copa-info-card">
-            <div class="copa-info-icon">🥇</div>
-            <div class="copa-info-title">Final</div>
-            <div class="copa-info-val">19 Jul 2026</div>
-        </div>
+    <div class="copa-grid">
+        <div class="copa-info-card"><div class="copa-info-icon">📅</div><div class="copa-info-title">Início</div><div class="copa-info-val">11 Jun 2026</div></div>
+        <div class="copa-info-card"><div class="copa-info-icon">🏟️</div><div class="copa-info-title">Sedes</div><div class="copa-info-val">16 cidades</div></div>
+        <div class="copa-info-card"><div class="copa-info-icon">🌍</div><div class="copa-info-title">Seleções</div><div class="copa-info-val">48 países</div></div>
+        <div class="copa-info-card"><div class="copa-info-icon">⚽</div><div class="copa-info-title">Jogos</div><div class="copa-info-val">104 partidas</div></div>
+        <div class="copa-info-card"><div class="copa-info-icon">🇧🇷</div><div class="copa-info-title">Brasil</div><div class="copa-info-val">Grupo E</div></div>
+        <div class="copa-info-card"><div class="copa-info-icon">🥇</div><div class="copa-info-title">Final</div><div class="copa-info-val">19 Jul 2026</div></div>
     </div>
 
-    <!-- Jogos ao vivo / próximas partidas -->
     <div class="copa-matches-wrap">
-        <h3 class="copa-matches-title" id="copaMatchesTitle">⚡ Próximas Partidas — Brasil</h3>
+        <h3 class="copa-matches-title" id="copaMatchesTitle">⚡ Próximas Partidas</h3>
         <div class="copa-matches" id="copaMatches">
-            <!-- Jogos do Brasil na Copa 2026 (estáticos com datas reais) -->
             <div class="match-card">
-                <div class="match-date">18 Jun 2026</div>
+                <div class="match-date">📅 Aguardando dados em tempo real...</div>
                 <div class="match-teams">
                     <span class="team-flag">🇧🇷</span>
                     <span class="team-name">Brasil</span>
                     <span class="match-vs">vs</span>
-                    <span class="team-name">Grupo E</span>
-                    <span class="team-flag">⚽</span>
+                    <span class="team-name">A definir</span>
                 </div>
                 <div class="match-status upcoming">Em breve</div>
             </div>
             <div class="match-card highlight-match">
                 <div class="match-badge-copa">🔥 Assistir no VLTV Play</div>
-                <div class="match-date">Todos os jogos ao vivo</div>
+                <div class="match-date">Todos os jogos ao vivo em HD & 4K</div>
                 <div class="match-teams">
                     <span class="team-flag">🏆</span>
                     <span class="team-name">Copa do Mundo 2026</span>
-                    <span class="match-vs">em</span>
-                    <span class="team-name">HD & 4K</span>
-                    <span class="team-flag">📺</span>
                 </div>
                 <button class="btn-copa-cta" onclick="openModal('Copa do Mundo 2026')">Garantir Meu Acesso</button>
             </div>
         </div>
     </div>
 
-    <!-- Seleções favoritas -->
     <div class="selecoes-wrap">
-        <h3 class="copa-matches-title">🌍 Seleções Favoritas</h3>
+        <h3 class="copa-matches-title">🌍 Seleções — clique para ver os jogos</h3>
         <div class="selecoes-grid">
-            <div class="selecao-card" onclick="openModal('Copa do Mundo 2026')">
-                <span class="selecao-flag">🇧🇷</span>
-                <span class="selecao-name">Brasil</span>
-                <span class="selecao-grupo">Grupo E</span>
+            <div class="selecao-card" onclick="openSelecaoModal('Brasil','🇧🇷','E',9470)">
+                <span class="selecao-flag">🇧🇷</span><span class="selecao-name">Brasil</span><span class="selecao-grupo">Grupo E</span>
             </div>
-            <div class="selecao-card" onclick="openModal('Copa do Mundo 2026')">
-                <span class="selecao-flag">🇦🇷</span>
-                <span class="selecao-name">Argentina</span>
-                <span class="selecao-grupo">Grupo A</span>
+            <div class="selecao-card" onclick="openSelecaoModal('Argentina','🇦🇷','A',9476)">
+                <span class="selecao-flag">🇦🇷</span><span class="selecao-name">Argentina</span><span class="selecao-grupo">Grupo A</span>
             </div>
-            <div class="selecao-card" onclick="openModal('Copa do Mundo 2026')">
-                <span class="selecao-flag">🇫🇷</span>
-                <span class="selecao-name">França</span>
-                <span class="selecao-grupo">Grupo D</span>
+            <div class="selecao-card" onclick="openSelecaoModal('França','🇫🇷','D',9478)">
+                <span class="selecao-flag">🇫🇷</span><span class="selecao-name">França</span><span class="selecao-grupo">Grupo D</span>
             </div>
-            <div class="selecao-card" onclick="openModal('Copa do Mundo 2026')">
-                <span class="selecao-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>
-                <span class="selecao-name">Inglaterra</span>
-                <span class="selecao-grupo">Grupo B</span>
+            <div class="selecao-card" onclick="openSelecaoModal('Inglaterra','🏴󠁧󠁢󠁥󠁮󠁧󠁿','B',9477)">
+                <span class="selecao-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span><span class="selecao-name">Inglaterra</span><span class="selecao-grupo">Grupo B</span>
             </div>
-            <div class="selecao-card" onclick="openModal('Copa do Mundo 2026')">
-                <span class="selecao-flag">🇩🇪</span>
-                <span class="selecao-name">Alemanha</span>
-                <span class="selecao-grupo">Grupo C</span>
+            <div class="selecao-card" onclick="openSelecaoModal('Alemanha','🇩🇪','C',9473)">
+                <span class="selecao-flag">🇩🇪</span><span class="selecao-name">Alemanha</span><span class="selecao-grupo">Grupo C</span>
             </div>
-            <div class="selecao-card" onclick="openModal('Copa do Mundo 2026')">
-                <span class="selecao-flag">🇵🇹</span>
-                <span class="selecao-name">Portugal</span>
-                <span class="selecao-grupo">Grupo F</span>
+            <div class="selecao-card" onclick="openSelecaoModal('Portugal','🇵🇹','F',9471)">
+                <span class="selecao-flag">🇵🇹</span><span class="selecao-name">Portugal</span><span class="selecao-grupo">Grupo F</span>
             </div>
-            <div class="selecao-card" onclick="openModal('Copa do Mundo 2026')">
-                <span class="selecao-flag">🇪🇸</span>
-                <span class="selecao-name">Espanha</span>
-                <span class="selecao-grupo">Grupo G</span>
+            <div class="selecao-card" onclick="openSelecaoModal('Espanha','🇪🇸','G',9474)">
+                <span class="selecao-flag">🇪🇸</span><span class="selecao-name">Espanha</span><span class="selecao-grupo">Grupo G</span>
             </div>
-            <div class="selecao-card" onclick="openModal('Copa do Mundo 2026')">
-                <span class="selecao-flag">🇺🇸</span>
-                <span class="selecao-name">EUA</span>
-                <span class="selecao-grupo">Grupo H</span>
+            <div class="selecao-card" onclick="openSelecaoModal('EUA','🇺🇸','H',9475)">
+                <span class="selecao-flag">🇺🇸</span><span class="selecao-name">EUA</span><span class="selecao-grupo">Grupo H</span>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ══ PLANOS ══ -->
 <section class="plans-section" id="planos">
     <div class="plans-header">
         <h2>Escolha Seu Plano</h2>
@@ -278,10 +203,7 @@
             <div class="plan-name">Mensal</div>
             <div class="plan-price">R$&nbsp;40<span>/mês</span></div>
             <ul class="plan-features">
-                <li>HD, Full HD e 4K</li>
-                <li>Filmes e Séries</li>
-                <li>Suporte Técnico</li>
-                <li>1 Tela Simultânea</li>
+                <li>HD, Full HD e 4K</li><li>Filmes e Séries</li><li>Suporte Técnico</li><li>1 Tela Simultânea</li>
             </ul>
             <button class="btn-plan" onclick="openModal('Plano Mensal')">Solicitar Teste</button>
         </div>
@@ -289,10 +211,7 @@
             <div class="plan-name">Trimestral</div>
             <div class="plan-price">R$&nbsp;110<span>/3 meses</span></div>
             <ul class="plan-features">
-                <li>Todos os benefícios</li>
-                <li>Mais economia</li>
-                <li>Grade completa</li>
-                <li>Atualizações Auto</li>
+                <li>Todos os benefícios</li><li>Mais economia</li><li>Grade completa</li><li>Atualizações Auto</li>
             </ul>
             <button class="btn-plan" onclick="openModal('Plano Trimestral')">Solicitar Teste</button>
         </div>
@@ -301,10 +220,7 @@
             <div class="plan-name">Semestral</div>
             <div class="plan-price">R$&nbsp;210<span>/6 meses</span></div>
             <ul class="plan-features">
-                <li>Acesso Estabilizado</li>
-                <li>Servidores Dedicados</li>
-                <li>Guia EPG</li>
-                <li>Suporte Prioritário</li>
+                <li>Acesso Estabilizado</li><li>Servidores Dedicados</li><li>Guia EPG</li><li>Suporte Prioritário</li>
             </ul>
             <button class="btn-plan featured-btn" onclick="openModal('Plano Semestral')">Solicitar Teste</button>
         </div>
@@ -312,10 +228,7 @@
             <div class="plan-name">Anual</div>
             <div class="plan-price">R$&nbsp;400<span>/ano</span></div>
             <ul class="plan-features">
-                <li>Máxima Economia</li>
-                <li>Acesso Ultra Premium</li>
-                <li>Prioridade Estreias</li>
-                <li>Suporte 24h</li>
+                <li>Máxima Economia</li><li>Acesso Ultra Premium</li><li>Prioridade Estreias</li><li>Suporte 24h</li>
             </ul>
             <button class="btn-plan" onclick="openModal('Plano Anual')">Solicitar Teste</button>
         </div>
@@ -324,44 +237,22 @@
             <div class="plan-name">Vitalício</div>
             <div class="plan-price gold-price">R$&nbsp;569<span>/único</span></div>
             <ul class="plan-features">
-                <li>Pague Uma Vez Só</li>
-                <li>Suporte VIP</li>
-                <li>Sem Mensalidades</li>
-                <li>Acesso Permanente</li>
+                <li>Pague Uma Vez Só</li><li>Suporte VIP</li><li>Sem Mensalidades</li><li>Acesso Permanente</li>
             </ul>
             <button class="btn-plan gold-btn" onclick="openModal('Plano Vitalício')">Solicitar Teste</button>
         </div>
     </div>
 </section>
 
-<!-- ══ FAQ ══ -->
 <section class="faq-section" id="faq">
     <h2>Perguntas Frequentes</h2>
     <div class="faq-list">
-        <div class="faq-item">
-            <button class="faq-question">Quanto tempo dura o teste gratuito? <span>+</span></button>
-            <div class="faq-answer"><p>O teste gratuito tem duração de 3 horas com acesso completo ao serviço, liberado imediatamente pela nossa equipe.</p></div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question">Preciso de internet para usar o IPTV? <span>+</span></button>
-            <div class="faq-answer"><p>Sim. Recomendamos pelo menos 10 Mbps para HD e 25 Mbps para 4K.</p></div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question">Posso instalar em celular, TV Smart, Fire Stick e Notebook? <span>+</span></button>
-            <div class="faq-answer"><p>Sim! O VLTV Play funciona em celular (Android e iOS), TV Smart, Fire Stick, TV Box, Notebook e Roku TV. Você instala em quantos aparelhos quiser.</p></div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question">Tem fidelidade ou multa por cancelamento? <span>+</span></button>
-            <div class="faq-answer"><p>Não. Nenhum plano possui fidelidade. Cancele quando quiser, sem multa e sem burocracia.</p></div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question">Quais são as formas de pagamento? <span>+</span></button>
-            <div class="faq-answer"><p>PIX (ativação imediata), Cartão de Crédito (até 1h) e Boleto Bancário. No PIX o acesso é liberado automaticamente em minutos.</p></div>
-        </div>
-        <div class="faq-item">
-            <button class="faq-question">Posso assistir à Copa do Mundo 2026? <span>+</span></button>
-            <div class="faq-answer"><p>Sim! Todos os jogos da Copa do Mundo 2026 estão disponíveis ao vivo no VLTV Play em HD e 4K, incluindo todos os jogos do Brasil.</p></div>
-        </div>
+        <div class="faq-item"><button class="faq-question">Quanto tempo dura o teste gratuito? <span>+</span></button><div class="faq-answer"><p>3 horas de acesso completo, liberado imediatamente pela nossa equipe.</p></div></div>
+        <div class="faq-item"><button class="faq-question">Preciso de internet para usar o IPTV? <span>+</span></button><div class="faq-answer"><p>Sim. Recomendamos pelo menos 10 Mbps para HD e 25 Mbps para 4K.</p></div></div>
+        <div class="faq-item"><button class="faq-question">Posso instalar em celular, TV Smart, Fire Stick e Notebook? <span>+</span></button><div class="faq-answer"><p>Sim! Funciona em celular (Android e iOS), TV Smart, Fire Stick, TV Box, Notebook e Roku TV.</p></div></div>
+        <div class="faq-item"><button class="faq-question">Tem fidelidade ou multa por cancelamento? <span>+</span></button><div class="faq-answer"><p>Não. Cancele quando quiser, sem multa e sem burocracia.</p></div></div>
+        <div class="faq-item"><button class="faq-question">Quais são as formas de pagamento? <span>+</span></button><div class="faq-answer"><p>PIX (ativação imediata), Cartão de Crédito (até 1h) e Boleto Bancário.</p></div></div>
+        <div class="faq-item"><button class="faq-question">Posso assistir à Copa do Mundo 2026? <span>+</span></button><div class="faq-answer"><p>Sim! Todos os jogos ao vivo no VLTV Play em HD e 4K, incluindo todos os jogos do Brasil.</p></div></div>
     </div>
 </section>
 
@@ -369,11 +260,20 @@
     <div class="footer-inner">
         <div class="footer-logo">VLTV<span>Play</span></div>
         <p>&copy; 2026 VLTV Play. Todos os direitos reservados.</p>
-        <p class="footer-sub">Serviço de IPTV premium brasileiro</p>
     </div>
 </footer>
 
-<!-- ══ MODAL DISPOSITIVO ══ -->
+<!-- MODAL SELEÇÃO COPA -->
+<div class="modal-overlay" id="selecaoModal" onclick="handleSelecaoClick(event)">
+    <div class="modal-box" style="max-width:500px;">
+        <button class="close-modal" onclick="closeSelecaoModal()">&times;</button>
+        <div id="selecaoContent">
+            <div class="selecao-loading">⚽ Carregando dados em tempo real...</div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DISPOSITIVO -->
 <div class="modal-overlay" id="testModal" onclick="handleModalClick(event)">
     <div class="modal-box">
         <button class="close-modal" onclick="closeModal()">&times;</button>
@@ -390,7 +290,7 @@
     </div>
 </div>
 
-<!-- ══ MODAL FILME/SÉRIE ══ -->
+<!-- MODAL FILME/SÉRIE -->
 <div class="modal-overlay" id="mediaModal" onclick="handleMediaModalClick(event)">
     <div class="media-modal-box">
         <button class="media-close" onclick="closeMediaModal()">✕</button>
@@ -410,23 +310,17 @@
     </div>
 </div>
 
-<!-- ══ WHATSAPP FLUTUANTE ══ -->
-<a class="whatsapp-float" href="https://api.whatsapp.com/send?phone=5531998491711&text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20o%20VLTV%20Play." target="_blank" rel="noopener" title="Fale conosco no WhatsApp">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-    </svg>
+<!-- WHATSAPP -->
+<a class="whatsapp-float" href="https://api.whatsapp.com/send?phone=5531998491711&text=Ol%C3%A1!%20Gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20o%20VLTV%20Play." target="_blank" rel="noopener">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     <span class="wpp-tooltip">Fale Conosco</span>
 </a>
 
-<!-- ══ CHAT IA ══ -->
+<!-- CHAT -->
 <div class="chat-widget">
-    <button class="chat-toggle" onclick="toggleChat()" title="Assistente VLTV">
-        <svg class="chat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-        </svg>
-        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="display:none">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-        </svg>
+    <button class="chat-toggle" onclick="toggleChat()">
+        <svg class="chat-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         <span class="chat-badge" id="chatBadge">1</span>
     </button>
     <div class="chat-box" id="chatBox">

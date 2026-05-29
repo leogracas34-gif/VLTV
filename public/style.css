@@ -2296,7 +2296,16 @@ footer p {
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px; padding: 16px;
     cursor: pointer; transition: all 0.2s;
+    position: relative;
 }
+.grupo-card::after {
+    content: "📊 ver classificação";
+    position: absolute; bottom: 8px; right: 10px;
+    font-size: 0.58rem; color: #555; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    opacity: 0; transition: opacity 0.2s;
+}
+.grupo-card:hover::after { opacity: 1; }
 .grupo-card:hover {
     border-color: rgba(229,9,20,0.5);
     background: rgba(229,9,20,0.05);
@@ -2390,4 +2399,89 @@ footer p {
     .grupos-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .grupo-card { padding: 12px; }
     .grupo-selecao { font-size: 0.7rem; }
+}
+
+/* ── MODAL GRUPO — CLASSIFICAÇÃO ── */
+.grupo-modal-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.grupo-modal-titulo {
+    font-size: 1.4rem; font-weight: 900; color: var(--red);
+}
+.grupo-modal-sub {
+    font-size: 0.78rem; color: #888; margin-top: 2px;
+}
+
+/* Tabela de classificação */
+.classificacao-table {
+    width: 100%; border-collapse: collapse;
+    margin-bottom: 24px; font-size: 0.82rem;
+}
+.classificacao-table th {
+    color: #666; font-size: 0.65rem; text-transform: uppercase;
+    letter-spacing: 0.8px; font-weight: 700; padding: 8px 10px;
+    text-align: center; border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.classificacao-table th:first-child { text-align: left; }
+.classificacao-table td {
+    padding: 10px; text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: #ccc;
+}
+.classificacao-table td:first-child { text-align: left; }
+.classificacao-table tr:hover td { background: rgba(255,255,255,0.03); }
+.class-pos { color: #888; font-weight: 700; width: 20px; }
+.class-time {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 700; color: #fff; min-width: 140px;
+}
+.class-time img { width: 22px; height: 22px; object-fit: contain; }
+.class-pts { font-weight: 900; color: #fff; font-size: 0.9rem; }
+.class-brasil td { background: rgba(229,9,20,0.06) !important; }
+
+/* Jogos do grupo */
+.grupo-jogos-titulo {
+    font-size: 0.72rem; font-weight: 800; color: #888;
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+.grupo-jogo-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px; padding: 12px 14px;
+    margin-bottom: 8px;
+}
+.grupo-jogo-meta {
+    display: flex; gap: 10px; align-items: center;
+    margin-bottom: 8px; flex-wrap: wrap;
+}
+.grupo-jogo-rodada {
+    font-size: 0.62rem; font-weight: 800; color: var(--red);
+    text-transform: uppercase; letter-spacing: 0.6px;
+}
+.grupo-jogo-data { font-size: 0.72rem; color: #aaa; }
+.grupo-jogo-local { font-size: 0.68rem; color: #666; }
+.grupo-jogo-times {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.grupo-jogo-time {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.85rem; font-weight: 700; color: #fff; flex: 1;
+}
+.grupo-jogo-time img { width: 20px; height: 20px; object-fit: contain; }
+.grupo-jogo-time.away { justify-content: flex-end; }
+.grupo-jogo-vs { font-size: 0.8rem; color: #555; padding: 0 4px; }
+.grupo-jogo-score {
+    font-size: 1.1rem; font-weight: 900; color: #fff;
+    padding: 0 10px; min-width: 60px; text-align: center;
+}
+.grupo-jogo-status-live {
+    font-size: 0.65rem; font-weight: 800; color: #ff4444;
+    text-transform: uppercase;
+}
+.grupo-cta {
+    margin-top: 20px; text-align: center;
 }

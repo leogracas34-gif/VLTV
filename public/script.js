@@ -315,91 +315,127 @@ function handleMediaModalClick(e) {
     if (e.target === document.getElementById('mediaModal')) closeMediaModal();
 }
 
+
 // ══════════════════════════════════════════════
 // COPA DO MUNDO — TEMPO REAL
 // ══════════════════════════════════════════════
+
+// Aba da Copa
+function switchCopaTab(tab, btn) {
+    document.querySelectorAll('.copa-tab').forEach(function(t){ t.classList.remove('active'); });
+    document.querySelectorAll('.copa-panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    var panel = document.getElementById('copa-panel-' + tab);
+    if (panel) panel.classList.add('active');
+    if (tab === 'partidas') loadProximasPartidas();
+}
+
+// Verifica jogos ao vivo ao carregar
 async function loadCopaMundoData() {
     try {
-        // Busca jogos AO VIVO da Copa 2026 (league=1)
         var r = await fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&live=all'));
         if (!r.ok) return;
         var data = await r.json();
         var live = data.response || [];
-
         if (live.length > 0) {
-            document.getElementById('copaLiveBadge').style.display = 'flex';
-            document.getElementById('copaMatchesTitle').textContent = '🔴 Jogos Ao Vivo — Copa do Mundo 2026';
-            renderMatches(live, true);
-        } else {
-            // Busca próximos jogos
-            var r2 = await fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&next=6'));
-            if (!r2.ok) return;
-            var data2 = await r2.json();
-            var next = data2.response || [];
-            if (next.length > 0) {
-                document.getElementById('copaMatchesTitle').textContent = '⚡ Próximas Partidas — Copa do Mundo 2026';
-                renderMatches(next, false);
-            }
+            var badge = document.getElementById('copaLiveBadge');
+            if (badge) badge.style.display = 'flex';
         }
     } catch(e) {
-        console.log('[Copa] API Football não configurada — exibindo dados estáticos');
+        console.log('[Copa] verificação live silenciosa');
     }
 }
 
-function renderMatches(fixtures, isLive) {
-    var container = document.getElementById('copaMatches');
-    if (!container) return;
-    var html = '';
+// Próximas partidas — carregadas ao clicar na aba
+var proximasCarregadas = false;
+async function loadProximasPartidas() {
+    if (proximasCarregadas) return;
+    var wrap = document.getElementById('partidasWrap');
+    if (!wrap) return;
+    wrap.innerHTML = '<div class="partidas-loading">⚽ Carregando partidas em tempo real...</div>';
 
-    fixtures.slice(0, 4).forEach(function(f) {
-        var home   = f.teams.home.name;
-        var away   = f.teams.away.name;
-        var homeLogo = f.teams.home.logo || '';
-        var awayLogo = f.teams.away.logo || '';
+    try {
+        var rLive = await fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&live=all'));
+        var dataLive = rLive.ok ? await rLive.json() : { response: [] };
+        var live = dataLive.response || [];
 
-        if (isLive) {
-            var scoreH = f.goals.home !== null ? f.goals.home : '0';
-            var scoreA = f.goals.away !== null ? f.goals.away : '0';
-            var min    = f.fixture.status.elapsed ? f.fixture.status.elapsed + "'" : 'AO VIVO';
-            html += '<div class="match-card">' +
-                '<div class="match-date">⚽ ' + min + ' — AO VIVO</div>' +
-                '<div class="match-teams">' +
-                    (homeLogo ? '<img src="'+homeLogo+'" class="team-logo" alt="">' : '') +
-                    '<span class="team-name">' + escapeHtml(home) + '</span>' +
-                    '<span class="match-score">' + scoreH + ' × ' + scoreA + '</span>' +
-                    '<span class="team-name">' + escapeHtml(away) + '</span>' +
-                    (awayLogo ? '<img src="'+awayLogo+'" class="team-logo" alt="">' : '') +
+        var rNext = await fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&next=20'));
+        var dataNext = rNext.ok ? await rNext.json() : { response: [] };
+        var next = dataNext.response || [];
+
+        if (live.length === 0 && next.length === 0) {
+            wrap.innerHTML = '<div class="partidas-loading">⚽ Nenhuma partida encontrada ainda. A Copa começa em 11 de junho de 2026!</div>';
+            return;
+        }
+
+        proximasCarregadas = true;
+        var html = '';
+
+        // Jogos ao vivo primeiro
+        live.forEach(function(f) {
+            var home = f.teams.home.name;
+            var away = f.teams.away.name;
+            var sH = f.goals.home !== null ? f.goals.home : '0';
+            var sA = f.goals.away !== null ? f.goals.away : '0';
+            var min = f.fixture.status.elapsed ? f.fixture.status.elapsed + "'" : '';
+            var grupo = f.league.round || '';
+            var isBrasil = home.indexOf('Brazil') > -1 || away.indexOf('Brazil') > -1;
+            html += '<div class="partida-card' + (isBrasil ? ' destaque-brasil' : '') + '">' +
+                '<div class="partida-info">' +
+                    '<span class="partida-grupo">🔴 AO VIVO ' + min + '</span>' +
+                    '<span class="partida-data">' + escapeHtml(grupo) + '</span>' +
                 '</div>' +
-                '<span class="match-status live">🔴 Ao Vivo</span>' +
+                '<div class="partida-times">' +
+                    '<div class="partida-time">' +
+                        (f.teams.home.logo ? '<img src="'+f.teams.home.logo+'" alt="">' : '') +
+                        '<span>' + escapeHtml(home) + '</span>' +
+                    '</div>' +
+                    '<span class="match-score">' + sH + ' × ' + sA + '</span>' +
+                    '<div class="partida-time">' +
+                        (f.teams.away.logo ? '<img src="'+f.teams.away.logo+'" alt="">' : '') +
+                        '<span>' + escapeHtml(away) + '</span>' +
+                    '</div>' +
+                '</div>' +
+                (f.fixture.venue && f.fixture.venue.name ? '<span class="partida-local">📍 ' + escapeHtml(f.fixture.venue.name) + '</span>' : '') +
             '</div>';
-        } else {
+        });
+
+        // Próximas partidas
+        next.forEach(function(f) {
+            var home = f.teams.home.name;
+            var away = f.teams.away.name;
             var dateObj = new Date(f.fixture.date);
             var dateStr = dateObj.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short' });
             var timeStr = dateObj.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-            var stadium = f.fixture.venue && f.fixture.venue.name ? f.fixture.venue.name : '';
-            html += '<div class="match-card">' +
-                '<div class="match-date">📅 ' + dateStr + ' · ' + timeStr + (stadium ? ' · ' + stadium : '') + '</div>' +
-                '<div class="match-teams">' +
-                    (homeLogo ? '<img src="'+homeLogo+'" class="team-logo" alt="">' : '') +
-                    '<span class="team-name">' + escapeHtml(home) + '</span>' +
-                    '<span class="match-vs">vs</span>' +
-                    '<span class="team-name">' + escapeHtml(away) + '</span>' +
-                    (awayLogo ? '<img src="'+awayLogo+'" class="team-logo" alt="">' : '') +
+            var grupo = f.league.round || '';
+            var isBrasil = home.indexOf('Brazil') > -1 || away.indexOf('Brazil') > -1;
+            html += '<div class="partida-card' + (isBrasil ? ' destaque-brasil' : '') + '">' +
+                '<div class="partida-info">' +
+                    '<span class="partida-grupo">' + escapeHtml(grupo) + '</span>' +
+                    '<span class="partida-data">📅 ' + dateStr + '</span>' +
+                    '<span class="partida-horario">🕐 ' + timeStr + ' (Brasília)</span>' +
                 '</div>' +
-                '<span class="match-status upcoming">Em breve</span>' +
+                '<div class="partida-times">' +
+                    '<div class="partida-time">' +
+                        (f.teams.home.logo ? '<img src="'+f.teams.home.logo+'" alt="">' : '') +
+                        '<span>' + escapeHtml(home) + '</span>' +
+                    '</div>' +
+                    '<span class="partida-vs">vs</span>' +
+                    '<div class="partida-time">' +
+                        (f.teams.away.logo ? '<img src="'+f.teams.away.logo+'" alt="">' : '') +
+                        '<span>' + escapeHtml(away) + '</span>' +
+                    '</div>' +
+                '</div>' +
+                (f.fixture.venue && f.fixture.venue.name ? '<span class="partida-local">📍 ' + escapeHtml(f.fixture.venue.name) + '</span>' : '') +
             '</div>';
-        }
-    });
+        });
 
-    // Card CTA
-    html += '<div class="match-card highlight-match">' +
-        '<div class="match-badge-copa">🔥 Assistir no VLTV Play</div>' +
-        '<div class="match-date">Todos os ' + fixtures.length + '+ jogos em HD & 4K</div>' +
-        '<div class="match-teams"><span class="team-flag">🏆</span><span class="team-name">Copa do Mundo 2026</span></div>' +
-        '<button class="btn-copa-cta" onclick="openModal(\'Copa do Mundo 2026\')">Garantir Meu Acesso</button>' +
-    '</div>';
+        wrap.innerHTML = html || '<div class="partidas-loading">Nenhuma partida encontrada.</div>';
 
-    container.innerHTML = html;
+    } catch(e) {
+        console.error('[Partidas]', e);
+        wrap.innerHTML = '<div class="partidas-loading">⚠️ Erro ao carregar. Configure FOOTBALL_KEY no Render.</div>';
+    }
 }
 
 // ══════════════════════════════════════════════

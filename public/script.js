@@ -17,11 +17,18 @@ const GENRES_TV = {
     10765:'Sci-Fi',10766:'Novela',10768:'Guerra',37:'Faroeste'
 };
 
-// ── TMDB via proxy backend ──
+// ── TMDB via proxy backend (com fallback direto à API TMDB) ──
+var TMDB_KEY_FALLBACK = '9b73f5dd15b8165b1b57419be2f29128';
 async function tmdb(endpoint) {
-    var r = await fetch('/api/tmdb?endpoint=' + encodeURIComponent(endpoint));
-    if (!r.ok) throw new Error('TMDB ' + r.status);
-    return r.json();
+    try {
+        var r = await fetch('/api/tmdb?endpoint=' + encodeURIComponent(endpoint));
+        if (r.ok) return r.json();
+    } catch(e) { /* servidor offline, usa fallback */ }
+    // Fallback direto à API TMDB
+    var sep = endpoint.indexOf('?') > -1 ? '&' : '?';
+    var r2 = await fetch('https://api.themoviedb.org/3/' + endpoint + sep + 'api_key=' + TMDB_KEY_FALLBACK);
+    if (!r2.ok) throw new Error('TMDB ' + r2.status);
+    return r2.json();
 }
 
 // ── Escape HTML ──
@@ -138,9 +145,9 @@ async function loadNowPlaying() {
         var todayStr = today.toISOString().split('T')[0];
 
         var pages = await Promise.all([
-            fetch('/api/nowplaying?page=1').then(function(r){ return r.json(); }),
-            fetch('/api/nowplaying?page=2').then(function(r){ return r.json(); }),
-            fetch('/api/nowplaying?page=3').then(function(r){ return r.json(); }),
+            tmdb('movie/now_playing?language=pt-BR&page=1'),
+            tmdb('movie/now_playing?language=pt-BR&page=2'),
+            tmdb('movie/now_playing?language=pt-BR&page=3'),
         ]);
 
         var seen = {}, movies = [];
@@ -172,9 +179,7 @@ async function loadMovies() {
     var view  = document.getElementById('viewMovies');
     if (!track || !view) return;
     try {
-        var r = await fetch('/api/upcoming');
-        if (!r.ok) throw new Error(r.status);
-        var data = await r.json();
+        var data = await tmdb('movie/upcoming?language=pt-BR&page=1');
         var movies = (data.results || []).filter(function(m){ return m.poster_path && (m.title || m.name); });
         if (!movies.length) { track.innerHTML = '<div class="loading-card">Nenhum lançamento encontrado.</div>'; return; }
         track.innerHTML = '';
@@ -935,7 +940,7 @@ function renderGrupoModal(grupo, standings, fixtures) {
     }
 
     html += '<div class="grupo-cta">' +
-        '<button class="btn-modal-submit" onclick="closeGrupoModal();openModal('Copa do Mundo 2026')">🎬 Assistir no VLTV Play — HD & 4K</button>' +
+        '<button class="btn-modal-submit" onclick="closeGrupoModal();openModal(\'Copa do Mundo 2026\')">🎬 Assistir no VLTV Play — HD &amp; 4K</button>' +
     '</div>';
 
     content.innerHTML = html;
@@ -967,7 +972,7 @@ function renderGrupoModalEstatico(grupo) {
 
     html += '</tbody></table>' +
         '<div class="selecao-sem-dados">⏳ Configure FOOTBALL_KEY no Render para ver dados em tempo real.</div>' +
-        '<div class="grupo-cta"><button class="btn-modal-submit" onclick="closeGrupoModal();openModal('Copa do Mundo 2026')">🎬 Assistir no VLTV Play</button></div>';
+        '<div class="grupo-cta"><button class="btn-modal-submit" onclick="closeGrupoModal();openModal(\'Copa do Mundo 2026\')">🎬 Assistir no VLTV Play</button></div>';
 
     content.innerHTML = html;
 }

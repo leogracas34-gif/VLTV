@@ -2342,6 +2342,13 @@ footer p {
     text-align: center; padding: 40px;
     color: #666; font-size: 0.9rem;
 }
+.partidas-rodada-titulo {
+    font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--red);
+    padding: 12px 4px 6px;
+    border-bottom: 1px solid rgba(229,9,20,0.2);
+    margin-top: 8px;
+}
 .partida-card {
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.08);

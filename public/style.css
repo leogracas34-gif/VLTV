@@ -2265,3 +2265,129 @@ footer p {
     padding:0 4px; margin-bottom:4px;
 }
 .selecao-aviso strong { color:#fff; }
+
+/* ── ABAS COPA ── */
+.copa-tabs-wrap { margin-bottom: 28px; }
+.copa-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap;
+}
+.copa-tab {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #999; padding: 10px 24px;
+    border-radius: 8px; font-size: 0.85rem;
+    font-weight: 700; cursor: pointer;
+    transition: all 0.2s; font-family: var(--font);
+}
+.copa-tab.active {
+    background: var(--red); border-color: var(--red); color: #fff;
+}
+.copa-panel { display: none; }
+.copa-panel.active { display: block; }
+
+/* ── GRID 12 GRUPOS ── */
+.grupos-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin-bottom: 28px;
+}
+.grupo-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 16px;
+    cursor: pointer; transition: all 0.2s;
+}
+.grupo-card:hover {
+    border-color: rgba(229,9,20,0.5);
+    background: rgba(229,9,20,0.05);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.grupo-card.brasil-grupo {
+    border-color: rgba(229,9,20,0.3);
+    background: rgba(229,9,20,0.04);
+}
+.grupo-label {
+    font-size: 0.72rem; font-weight: 800;
+    color: var(--red); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.grupo-selecoes {
+    display: flex; flex-direction: column; gap: 7px;
+}
+.grupo-selecao {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.78rem; color: #ccc; font-weight: 500;
+}
+.grupo-selecao span:first-child { font-size: 1rem; }
+.grupo-selecao.destaque { color: #fff; font-weight: 800; }
+
+/* ── PRÓXIMAS PARTIDAS ── */
+.partidas-wrap {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 20px;
+}
+.partidas-loading {
+    text-align: center; padding: 40px;
+    color: #666; font-size: 0.9rem;
+}
+.partida-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; align-items: center;
+    gap: 16px; flex-wrap: wrap;
+    transition: border-color 0.2s;
+}
+.partida-card:hover { border-color: rgba(255,255,255,0.18); }
+.partida-card.destaque-brasil {
+    border-color: rgba(229,9,20,0.35);
+    background: rgba(229,9,20,0.04);
+}
+.partida-info {
+    display: flex; flex-direction: column; gap: 3px;
+    min-width: 110px;
+}
+.partida-grupo {
+    font-size: 0.62rem; font-weight: 800;
+    color: var(--red); text-transform: uppercase; letter-spacing: 0.8px;
+}
+.partida-data {
+    font-size: 0.72rem; color: #aaa; font-weight: 600;
+}
+.partida-horario {
+    font-size: 0.78rem; color: #fff; font-weight: 700;
+}
+.partida-times {
+    display: flex; align-items: center; gap: 10px;
+    flex: 1; flex-wrap: wrap;
+}
+.partida-time {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.85rem; font-weight: 700; color: #fff;
+}
+.partida-time img { width: 22px; height: 22px; object-fit: contain; }
+.partida-vs {
+    font-size: 0.7rem; color: #666; font-weight: 600;
+    padding: 0 4px;
+}
+.partida-local {
+    font-size: 0.68rem; color: #666;
+    white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; max-width: 180px;
+}
+
+/* ── RESPONSIVO COPA ── */
+@media (max-width: 1100px) {
+    .grupos-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+    .grupos-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .grupos-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .grupo-card { padding: 12px; }
+    .grupo-selecao { font-size: 0.7rem; }
+}

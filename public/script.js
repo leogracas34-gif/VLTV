@@ -359,7 +359,7 @@ async function loadProximasPartidas() {
         var dataLive = rLive.ok ? await rLive.json() : { response: [] };
         var live = dataLive.response || [];
 
-        var rNext = await fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&next=20'));
+        var rNext = await fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&next=30'));
         var dataNext = rNext.ok ? await rNext.json() : { response: [] };
         var next = dataNext.response || [];
 
@@ -752,6 +752,233 @@ async function sendChatMessage() {
         removeTyping();
         addMsg('Erro de conexão. Fale no WhatsApp! 💬', 'bot');
     }
+}
+
+
+// ── DADOS ESTÁTICOS DOS GRUPOS (fallback se API não retornar) ──
+var GRUPOS_ESTATICOS = {
+    A: { selecoes: [{flag:'🇲🇽',nome:'México'},{flag:'🇿🇦',nome:'África do Sul'},{flag:'🇰🇷',nome:'Coreia do Sul'},{flag:'🇨🇿',nome:'Rep. Tcheca'}] },
+    B: { selecoes: [{flag:'🇨🇦',nome:'Canadá'},{flag:'🇧🇦',nome:'Bósnia-Herz.'},{flag:'🇶🇦',nome:'Catar'},{flag:'🇨🇭',nome:'Suíça'}] },
+    C: { selecoes: [{flag:'🇧🇷',nome:'Brasil'},{flag:'🇲🇦',nome:'Marrocos'},{flag:'🇭🇹',nome:'Haiti'},{flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',nome:'Escócia'}] },
+    D: { selecoes: [{flag:'🇺🇸',nome:'EUA'},{flag:'🇵🇾',nome:'Paraguai'},{flag:'🇦🇺',nome:'Austrália'},{flag:'🇹🇷',nome:'Turquia'}] },
+    E: { selecoes: [{flag:'🇩🇪',nome:'Alemanha'},{flag:'🇨🇼',nome:'Curaçao'},{flag:'🇨🇮',nome:'Costa do Marfim'},{flag:'🇪🇨',nome:'Equador'}] },
+    F: { selecoes: [{flag:'🇳🇱',nome:'Holanda'},{flag:'🇯🇵',nome:'Japão'},{flag:'🇹🇳',nome:'Tunísia'},{flag:'🇺🇦',nome:'Ucrânia'}] },
+    G: { selecoes: [{flag:'🇧🇪',nome:'Bélgica'},{flag:'🇪🇬',nome:'Egito'},{flag:'🇮🇷',nome:'Irã'},{flag:'🇳🇿',nome:'Nova Zelândia'}] },
+    H: { selecoes: [{flag:'🇪🇸',nome:'Espanha'},{flag:'🇨🇻',nome:'Cabo Verde'},{flag:'🇸🇦',nome:'Arábia Saudita'},{flag:'🇺🇾',nome:'Uruguai'}] },
+    I: { selecoes: [{flag:'🇫🇷',nome:'França'},{flag:'🇸🇳',nome:'Senegal'},{flag:'🇳🇴',nome:'Noruega'},{flag:'🇮🇶',nome:'Iraque'}] },
+    J: { selecoes: [{flag:'🇦🇷',nome:'Argentina'},{flag:'🇩🇿',nome:'Argélia'},{flag:'🇦🇹',nome:'Áustria'},{flag:'🇯🇴',nome:'Jordânia'}] },
+    K: { selecoes: [{flag:'🇵🇹',nome:'Portugal'},{flag:'🇺🇿',nome:'Uzbequistão'},{flag:'🇨🇴',nome:'Colômbia'},{flag:'🇨🇩',nome:'RD Congo'}] },
+    L: { selecoes: [{flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',nome:'Inglaterra'},{flag:'🇭🇷',nome:'Croácia'},{flag:'🇬🇭',nome:'Gana'},{flag:'🇵🇦',nome:'Panamá'}] }
+};
+
+// ══════════════════════════════════════════════
+// MODAL GRUPO — CLASSIFICAÇÃO + JOGOS
+// ══════════════════════════════════════════════
+async function openGrupoModal(grupo) {
+    var modal   = document.getElementById('grupoModal');
+    var content = document.getElementById('grupoModalContent');
+    if (!modal || !content) return;
+
+    var isBrasil = grupo === 'C';
+    content.innerHTML = '<div class="selecao-loading">⚽ Carregando classificação do Grupo ' + grupo + '...</div>';
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    try {
+        // Busca standings e fixtures do grupo em paralelo
+        var results = await Promise.all([
+            fetch('/api/football?endpoint=' + encodeURIComponent('standings?league=1&season=2026'))
+                .then(function(r){ return r.ok ? r.json() : {response:[]}; })
+                .catch(function(){ return {response:[]}; }),
+            fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&group=Group ' + grupo))
+                .then(function(r){ return r.ok ? r.json() : {response:[]}; })
+                .catch(function(){ return {response:[]}; })
+        ]);
+
+        var standingsData = results[0].response || [];
+        var fixturesData  = results[1].response || [];
+
+        // Tenta extrair o grupo dos standings
+        var grupoStandings = null;
+        if (standingsData.length > 0 && standingsData[0].league && standingsData[0].league.standings) {
+            var allStandings = standingsData[0].league.standings;
+            for (var i = 0; i < allStandings.length; i++) {
+                var s = allStandings[i];
+                if (s.length > 0 && s[0].group && s[0].group.indexOf('Group ' + grupo) > -1) {
+                    grupoStandings = s;
+                    break;
+                }
+            }
+        }
+
+        renderGrupoModal(grupo, grupoStandings, fixturesData);
+
+    } catch(e) {
+        console.error('[GrupoModal]', e);
+        renderGrupoModalEstatico(grupo);
+    }
+}
+
+function renderGrupoModal(grupo, standings, fixtures) {
+    var content = document.getElementById('grupoModalContent');
+    if (!content) return;
+    var estatico = GRUPOS_ESTATICOS[grupo] || { selecoes: [] };
+    var isBrasil = grupo === 'C';
+
+    var html = '<div class="grupo-modal-header">' +
+        '<div>' +
+            '<div class="grupo-modal-titulo">Grupo ' + grupo + '</div>' +
+            '<div class="grupo-modal-sub">Copa do Mundo 2026 — Classificação</div>' +
+        '</div>' +
+    '</div>';
+
+    // TABELA DE CLASSIFICAÇÃO
+    html += '<h4 class="grupo-jogos-titulo">📊 Classificação</h4>';
+    html += '<table class="classificacao-table"><thead><tr>' +
+        '<th>#</th><th style="text-align:left">Seleção</th>' +
+        '<th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th>' +
+    '</tr></thead><tbody>';
+
+    if (standings && standings.length > 0) {
+        // Dados reais da API
+        standings.forEach(function(team, idx) {
+            var isBR = team.team && (team.team.name === 'Brazil' || team.team.name === 'Brasil');
+            html += '<tr class="' + (isBR ? 'class-brasil' : '') + '">' +
+                '<td class="class-pos">' + team.rank + '</td>' +
+                '<td><div class="class-time">' +
+                    (team.team.logo ? '<img src="'+team.team.logo+'" alt="">' : '') +
+                    '<span>' + escapeHtml(team.team.name) + '</span>' +
+                '</div></td>' +
+                '<td class="class-pts">' + team.points + '</td>' +
+                '<td>' + (team.all ? team.all.played : 0) + '</td>' +
+                '<td>' + (team.all ? team.all.win : 0) + '</td>' +
+                '<td>' + (team.all ? team.all.draw : 0) + '</td>' +
+                '<td>' + (team.all ? team.all.lose : 0) + '</td>' +
+                '<td>' + (team.all && team.all.goals ? team.all.goals.for : 0) + '</td>' +
+                '<td>' + (team.all && team.all.goals ? team.all.goals.against : 0) + '</td>' +
+                '<td>' + (team.goalsDiff || 0) + '</td>' +
+            '</tr>';
+        });
+    } else {
+        // Fallback estático — torneio não começou
+        estatico.selecoes.forEach(function(s, idx) {
+            var isBR = s.nome === 'Brasil';
+            html += '<tr class="' + (isBR ? 'class-brasil' : '') + '">' +
+                '<td class="class-pos">—</td>' +
+                '<td><div class="class-time"><span style="font-size:1.1rem">' + s.flag + '</span><span>' + s.nome + '</span></div></td>' +
+                '<td class="class-pts">0</td>' +
+                '<td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>' +
+            '</tr>';
+        });
+        html += '</tbody></table>';
+        html += '<div class="selecao-sem-dados" style="margin-bottom:16px">⏳ A fase de grupos começa em 11 de junho. A classificação será atualizada em tempo real.</div>';
+    }
+
+    if (standings && standings.length > 0) {
+        html += '</tbody></table>';
+    }
+
+    // JOGOS DO GRUPO
+    if (fixtures && fixtures.length > 0) {
+        html += '<h4 class="grupo-jogos-titulo" style="margin-top:20px">📅 Jogos do Grupo</h4>';
+
+        // Agrupa por rodada
+        var rodadas = {};
+        fixtures.forEach(function(f) {
+            var rodada = f.league.round || 'Fase de Grupos';
+            if (!rodadas[rodada]) rodadas[rodada] = [];
+            rodadas[rodada].push(f);
+        });
+
+        Object.keys(rodadas).forEach(function(rodada) {
+            html += '<div class="grupo-jogos-titulo" style="color:var(--red);margin-top:14px;margin-bottom:8px">' + escapeHtml(rodada) + '</div>';
+            rodadas[rodada].forEach(function(f) {
+                var home = f.teams.home.name;
+                var away = f.teams.away.name;
+                var dateObj = new Date(f.fixture.date);
+                var dateStr = dateObj.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short' });
+                var timeStr = dateObj.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+                var local = f.fixture.venue && f.fixture.venue.name ? f.fixture.venue.name : '';
+                var isLive = f.fixture.status.short === 'LIVE' || f.fixture.status.short === '1H' || f.fixture.status.short === '2H' || f.fixture.status.short === 'HT';
+                var isEnd = f.fixture.status.short === 'FT';
+                var sH = f.goals.home !== null ? f.goals.home : '';
+                var sA = f.goals.away !== null ? f.goals.away : '';
+                var isBR = home.indexOf('Brazil') > -1 || away.indexOf('Brazil') > -1 || home.indexOf('Brasil') > -1 || away.indexOf('Brasil') > -1;
+                var min = f.fixture.status.elapsed ? f.fixture.status.elapsed + "'" : '';
+
+                html += '<div class="grupo-jogo-item' + (isBR ? '" style="border-color:rgba(229,9,20,0.4)' : '') + '">' +
+                    '<div class="grupo-jogo-meta">' +
+                        '<span class="grupo-jogo-data">📅 ' + dateStr + ' · ' + timeStr + ' (Brasília)</span>' +
+                        (local ? '<span class="grupo-jogo-local">📍 ' + escapeHtml(local) + '</span>' : '') +
+                        (isLive ? '<span class="grupo-jogo-status-live">🔴 ' + min + '</span>' : '') +
+                        (isEnd ? '<span class="grupo-jogo-status-live" style="color:#888">Encerrado</span>' : '') +
+                    '</div>' +
+                    '<div class="grupo-jogo-times">' +
+                        '<div class="grupo-jogo-time">' +
+                            (f.teams.home.logo ? '<img src="'+f.teams.home.logo+'" alt="">' : '') +
+                            '<span>' + escapeHtml(home) + '</span>' +
+                        '</div>' +
+                        (isLive || isEnd
+                            ? '<div class="grupo-jogo-score">' + sH + ' × ' + sA + '</div>'
+                            : '<div class="grupo-jogo-vs">vs</div>') +
+                        '<div class="grupo-jogo-time away">' +
+                            '<span>' + escapeHtml(away) + '</span>' +
+                            (f.teams.away.logo ? '<img src="'+f.teams.away.logo+'" alt="">' : '') +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            });
+        });
+    } else {
+        // Sem fixtures — mostra mensagem
+        html += '<div class="selecao-sem-dados">📅 Os jogos deste grupo serão exibidos aqui quando a API sincronizar os dados.</div>';
+    }
+
+    html += '<div class="grupo-cta">' +
+        '<button class="btn-modal-submit" onclick="closeGrupoModal();openModal('Copa do Mundo 2026')">🎬 Assistir no VLTV Play — HD & 4K</button>' +
+    '</div>';
+
+    content.innerHTML = html;
+}
+
+function renderGrupoModalEstatico(grupo) {
+    var content = document.getElementById('grupoModalContent');
+    if (!content) return;
+    var estatico = GRUPOS_ESTATICOS[grupo] || { selecoes: [] };
+
+    var html = '<div class="grupo-modal-header">' +
+        '<div><div class="grupo-modal-titulo">Grupo ' + grupo + '</div>' +
+        '<div class="grupo-modal-sub">Copa do Mundo 2026</div></div></div>';
+
+    html += '<h4 class="grupo-jogos-titulo">📊 Seleções do Grupo</h4>';
+    html += '<table class="classificacao-table"><thead><tr>' +
+        '<th>#</th><th style="text-align:left">Seleção</th>' +
+        '<th>P</th><th>J</th><th>V</th><th>E</th><th>D</th>' +
+    '</tr></thead><tbody>';
+
+    estatico.selecoes.forEach(function(s) {
+        var isBR = s.nome === 'Brasil';
+        html += '<tr class="' + (isBR ? 'class-brasil' : '') + '">' +
+            '<td class="class-pos">—</td>' +
+            '<td><div class="class-time"><span style="font-size:1.1rem">' + s.flag + '</span><span>' + s.nome + '</span></div></td>' +
+            '<td class="class-pts">0</td><td>0</td><td>0</td><td>0</td><td>0</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table>' +
+        '<div class="selecao-sem-dados">⏳ Configure FOOTBALL_KEY no Render para ver dados em tempo real.</div>' +
+        '<div class="grupo-cta"><button class="btn-modal-submit" onclick="closeGrupoModal();openModal('Copa do Mundo 2026')">🎬 Assistir no VLTV Play</button></div>';
+
+    content.innerHTML = html;
+}
+
+function closeGrupoModal() {
+    var m = document.getElementById('grupoModal');
+    if (m) m.classList.remove('active');
+    document.body.style.overflow = '';
+}
+function handleGrupoModalClick(e) {
+    if (e.target === document.getElementById('grupoModal')) closeGrupoModal();
 }
 
 // ══════════════════════════════════════════════

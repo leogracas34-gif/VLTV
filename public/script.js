@@ -360,79 +360,80 @@ async function loadProximasPartidas() {
     wrap.innerHTML = '<div class="partidas-loading">⚽ Carregando partidas em tempo real...</div>';
 
     try {
-        var rLive = await fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&live=all'));
-        var dataLive = rLive.ok ? await rLive.json() : { response: [] };
-        var live = dataLive.response || [];
+        // Busca ao vivo + todas as partidas da Copa (fase de grupos: 11 jun – 2 jul)
+        var results = await Promise.all([
+            fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&live=all'))
+                .then(function(r){ return r.ok ? r.json() : {response:[]}; }).catch(function(){ return {response:[]}; }),
+            fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&from=2026-06-11&to=2026-07-19'))
+                .then(function(r){ return r.ok ? r.json() : {response:[]}; }).catch(function(){ return {response:[]}; })
+        ]);
 
-        var rNext = await fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&next=30'));
-        var dataNext = rNext.ok ? await rNext.json() : { response: [] };
-        var next = dataNext.response || [];
+        var live    = results[0].response || [];
+        var allFixt = results[1].response || [];
 
-        if (live.length === 0 && next.length === 0) {
+        if (live.length === 0 && allFixt.length === 0) {
             wrap.innerHTML = '<div class="partidas-loading">⚽ Nenhuma partida encontrada ainda. A Copa começa em 11 de junho de 2026!</div>';
             return;
         }
 
         proximasCarregadas = true;
-        var html = '';
 
-        // Jogos ao vivo primeiro
+        // Separa ao vivo dos demais
+        var liveIds = {};
+        live.forEach(function(f){ liveIds[f.fixture.id] = true; });
+        var resto = allFixt.filter(function(f){ return !liveIds[f.fixture.id]; });
+
+        // Agrupa por rodada
+        var rodadas = {};
         live.forEach(function(f) {
-            var home = f.teams.home.name;
-            var away = f.teams.away.name;
-            var sH = f.goals.home !== null ? f.goals.home : '0';
-            var sA = f.goals.away !== null ? f.goals.away : '0';
-            var min = f.fixture.status.elapsed ? f.fixture.status.elapsed + "'" : '';
-            var grupo = f.league.round || '';
-            var isBrasil = home.indexOf('Brazil') > -1 || away.indexOf('Brazil') > -1;
-            html += '<div class="partida-card' + (isBrasil ? ' destaque-brasil' : '') + '">' +
-                '<div class="partida-info">' +
-                    '<span class="partida-grupo">🔴 AO VIVO ' + min + '</span>' +
-                    '<span class="partida-data">' + escapeHtml(grupo) + '</span>' +
-                '</div>' +
-                '<div class="partida-times">' +
-                    '<div class="partida-time">' +
-                        (f.teams.home.logo ? '<img src="'+f.teams.home.logo+'" alt="">' : '') +
-                        '<span>' + escapeHtml(home) + '</span>' +
-                    '</div>' +
-                    '<span class="match-score">' + sH + ' × ' + sA + '</span>' +
-                    '<div class="partida-time">' +
-                        (f.teams.away.logo ? '<img src="'+f.teams.away.logo+'" alt="">' : '') +
-                        '<span>' + escapeHtml(away) + '</span>' +
-                    '</div>' +
-                '</div>' +
-                (f.fixture.venue && f.fixture.venue.name ? '<span class="partida-local">📍 ' + escapeHtml(f.fixture.venue.name) + '</span>' : '') +
-            '</div>';
+            var r = '🔴 AO VIVO'; if (!rodadas[r]) rodadas[r] = []; rodadas[r].push({f:f, isLive:true});
+        });
+        resto.forEach(function(f) {
+            var r = f.league.round || 'Fase de Grupos'; if (!rodadas[r]) rodadas[r] = []; rodadas[r].push({f:f, isLive:false});
         });
 
-        // Próximas partidas
-        next.forEach(function(f) {
-            var home = f.teams.home.name;
-            var away = f.teams.away.name;
-            var dateObj = new Date(f.fixture.date);
-            var dateStr = dateObj.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short' });
-            var timeStr = dateObj.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-            var grupo = f.league.round || '';
-            var isBrasil = home.indexOf('Brazil') > -1 || away.indexOf('Brazil') > -1;
-            html += '<div class="partida-card' + (isBrasil ? ' destaque-brasil' : '') + '">' +
-                '<div class="partida-info">' +
-                    '<span class="partida-grupo">' + escapeHtml(grupo) + '</span>' +
-                    '<span class="partida-data">📅 ' + dateStr + '</span>' +
-                    '<span class="partida-horario">🕐 ' + timeStr + ' (Brasília)</span>' +
-                '</div>' +
-                '<div class="partida-times">' +
-                    '<div class="partida-time">' +
-                        (f.teams.home.logo ? '<img src="'+f.teams.home.logo+'" alt="">' : '') +
-                        '<span>' + escapeHtml(home) + '</span>' +
+        var html = '';
+        Object.keys(rodadas).forEach(function(rodada) {
+            html += '<div class="partidas-rodada-titulo">' + escapeHtml(rodada) + '</div>';
+            rodadas[rodada].forEach(function(item) {
+                var f = item.f;
+                var isLive = item.isLive;
+                var home = f.teams.home.name;
+                var away = f.teams.away.name;
+                var isBrasil = home.indexOf('Brazil') > -1 || away.indexOf('Brazil') > -1
+                             || home.indexOf('Brasil') > -1 || away.indexOf('Brasil') > -1;
+                var isEnd = f.fixture.status.short === 'FT';
+                var sH = f.goals.home !== null ? f.goals.home : '';
+                var sA = f.goals.away !== null ? f.goals.away : '';
+                var min = f.fixture.status.elapsed ? f.fixture.status.elapsed + "'" : '';
+                var dateObj = new Date(f.fixture.date);
+                var dateStr = dateObj.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short' });
+                var timeStr = dateObj.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+                var local = f.fixture.venue && f.fixture.venue.name ? f.fixture.venue.name : '';
+
+                html += '<div class="partida-card' + (isBrasil ? ' destaque-brasil' : '') + '">' +
+                    '<div class="partida-info">' +
+                        (isLive
+                            ? '<span class="partida-grupo" style="color:#e50914">🔴 AO VIVO ' + min + '</span>'
+                            : '<span class="partida-data">📅 ' + dateStr + '</span>') +
+                        (!isLive ? '<span class="partida-horario">🕐 ' + timeStr + ' (Brasília)</span>' : '') +
+                        (local ? '<span class="partida-local">📍 ' + escapeHtml(local) + '</span>' : '') +
                     '</div>' +
-                    '<span class="partida-vs">vs</span>' +
-                    '<div class="partida-time">' +
-                        (f.teams.away.logo ? '<img src="'+f.teams.away.logo+'" alt="">' : '') +
-                        '<span>' + escapeHtml(away) + '</span>' +
+                    '<div class="partida-times">' +
+                        '<div class="partida-time">' +
+                            (f.teams.home.logo ? '<img src="'+f.teams.home.logo+'" alt="">' : '') +
+                            '<span>' + escapeHtml(home) + '</span>' +
+                        '</div>' +
+                        (isLive || isEnd
+                            ? '<span class="match-score">' + sH + ' × ' + sA + '</span>'
+                            : '<span class="partida-vs">vs</span>') +
+                        '<div class="partida-time">' +
+                            (f.teams.away.logo ? '<img src="'+f.teams.away.logo+'" alt="">' : '') +
+                            '<span>' + escapeHtml(away) + '</span>' +
+                        '</div>' +
                     '</div>' +
-                '</div>' +
-                (f.fixture.venue && f.fixture.venue.name ? '<span class="partida-local">📍 ' + escapeHtml(f.fixture.venue.name) + '</span>' : '') +
-            '</div>';
+                '</div>';
+            });
         });
 
         wrap.innerHTML = html || '<div class="partidas-loading">Nenhuma partida encontrada.</div>';
@@ -790,18 +791,24 @@ async function openGrupoModal(grupo) {
     document.body.style.overflow = 'hidden';
 
     try {
-        // Busca standings e fixtures do grupo em paralelo
+        // Busca standings + TODAS as fixtures da Copa (filtramos por grupo no JS)
         var results = await Promise.all([
             fetch('/api/football?endpoint=' + encodeURIComponent('standings?league=1&season=2026'))
                 .then(function(r){ return r.ok ? r.json() : {response:[]}; })
                 .catch(function(){ return {response:[]}; }),
-            fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&group=Group ' + grupo))
+            fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&from=2026-06-11&to=2026-07-19'))
                 .then(function(r){ return r.ok ? r.json() : {response:[]}; })
                 .catch(function(){ return {response:[]}; })
         ]);
 
         var standingsData = results[0].response || [];
-        var fixturesData  = results[1].response || [];
+        var allFixtures   = results[1].response || [];
+
+        // Filtra fixtures do grupo: round contém "Group X" ou "Grupo X"
+        var fixturesData = allFixtures.filter(function(f) {
+            var round = (f.league.round || '').toUpperCase();
+            return round.indexOf('GROUP ' + grupo) > -1 || round.indexOf('GRUPO ' + grupo) > -1;
+        });
 
         // Tenta extrair o grupo dos standings
         var grupoStandings = null;
@@ -809,7 +816,7 @@ async function openGrupoModal(grupo) {
             var allStandings = standingsData[0].league.standings;
             for (var i = 0; i < allStandings.length; i++) {
                 var s = allStandings[i];
-                if (s.length > 0 && s[0].group && s[0].group.indexOf('Group ' + grupo) > -1) {
+                if (s.length > 0 && s[0].group && s[0].group.toUpperCase().indexOf('GROUP ' + grupo) > -1) {
                     grupoStandings = s;
                     break;
                 }

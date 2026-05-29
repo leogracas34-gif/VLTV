@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VLTV Play — O Melhor do Streaming</title>
-    <meta property="og:title" content="VLTV Play — O Melhor do Streaming">
+    <title>VLTV Play — IPTV Premium</title>
+    <meta property="og:title" content="VLTV Play — IPTV Premium">
     <meta property="og:description" content="Milhares de canais, filmes e séries com estabilidade total. Teste grátis por 3 horas.">
     <meta property="og:image" content="https://images.unsplash.com/photo-1574375927938-d5a98e8edd86?q=80&w=600">
     <meta property="og:url" content="https://vltvplay.com">
@@ -120,7 +120,7 @@
             <span class="copa-trophy">🏆</span>
             <div>
                 <h2>Copa do Mundo 2026</h2>
-                <p class="copa-sub">EUA · Canadá · México — Junho/Julho 2026</p>
+                <p class="copa-sub">EUA · Canadá · México — 11 Jun a 19 Jul 2026</p>
             </div>
         </div>
         <div class="copa-live-badge" id="copaLiveBadge" style="display:none">
@@ -128,67 +128,148 @@
         </div>
     </div>
 
+    <!-- Cards informativos -->
     <div class="copa-grid">
-        <div class="copa-info-card"><div class="copa-info-icon">📅</div><div class="copa-info-title">Início</div><div class="copa-info-val">11 Jun 2026</div></div>
+        <div class="copa-info-card"><div class="copa-info-icon">📅</div><div class="copa-info-title">Abertura</div><div class="copa-info-val">11 Jun 2026</div></div>
         <div class="copa-info-card"><div class="copa-info-icon">🏟️</div><div class="copa-info-title">Sedes</div><div class="copa-info-val">16 cidades</div></div>
         <div class="copa-info-card"><div class="copa-info-icon">🌍</div><div class="copa-info-title">Seleções</div><div class="copa-info-val">48 países</div></div>
-        <div class="copa-info-card"><div class="copa-info-icon">⚽</div><div class="copa-info-title">Jogos</div><div class="copa-info-val">104 partidas</div></div>
-        <div class="copa-info-card"><div class="copa-info-icon">🇧🇷</div><div class="copa-info-title">Brasil</div><div class="copa-info-val">Grupo E</div></div>
+        <div class="copa-info-card"><div class="copa-info-icon">⚽</div><div class="copa-info-title">Partidas</div><div class="copa-info-val">104 jogos</div></div>
+        <div class="copa-info-card"><div class="copa-info-icon">🇧🇷</div><div class="copa-info-title">Brasil</div><div class="copa-info-val">Grupo C</div></div>
         <div class="copa-info-card"><div class="copa-info-icon">🥇</div><div class="copa-info-title">Final</div><div class="copa-info-val">19 Jul 2026</div></div>
     </div>
 
-    <div class="copa-matches-wrap">
-        <h3 class="copa-matches-title" id="copaMatchesTitle">⚡ Próximas Partidas</h3>
-        <div class="copa-matches" id="copaMatches">
-            <div class="match-card">
-                <div class="match-date">📅 Aguardando dados em tempo real...</div>
-                <div class="match-teams">
-                    <span class="team-flag">🇧🇷</span>
-                    <span class="team-name">Brasil</span>
-                    <span class="match-vs">vs</span>
-                    <span class="team-name">A definir</span>
+    <!-- Abas: Grupos / Próximas Partidas -->
+    <div class="copa-tabs-wrap">
+        <div class="copa-tabs">
+            <button class="copa-tab active" onclick="switchCopaTab('grupos', this)">📋 Grupos A–L</button>
+            <button class="copa-tab" onclick="switchCopaTab('partidas', this)">📅 Próximas Partidas</button>
+        </div>
+    </div>
+
+    <!-- Painel Grupos -->
+    <div class="copa-panel active" id="copa-panel-grupos">
+        <div class="grupos-grid" id="gruposGrid">
+            <!-- 12 grupos estáticos com dados reais — API complementa em tempo real -->
+            <div class="grupo-card" onclick="openSelecaoModal('México','🇲🇽','A',2)">
+                <div class="grupo-label">Grupo A</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🇲🇽</span><span>México</span></div>
+                    <div class="grupo-selecao"><span>🇿🇦</span><span>África do Sul</span></div>
+                    <div class="grupo-selecao"><span>🇰🇷</span><span>Coreia do Sul</span></div>
+                    <div class="grupo-selecao"><span>🇨🇿</span><span>Rep. Tcheca</span></div>
                 </div>
-                <div class="match-status upcoming">Em breve</div>
             </div>
-            <div class="match-card highlight-match">
-                <div class="match-badge-copa">🔥 Assistir no VLTV Play</div>
-                <div class="match-date">Todos os jogos ao vivo em HD & 4K</div>
-                <div class="match-teams">
-                    <span class="team-flag">🏆</span>
-                    <span class="team-name">Copa do Mundo 2026</span>
+            <div class="grupo-card" onclick="openSelecaoModal('Canadá','🇨🇦','B',6)">
+                <div class="grupo-label">Grupo B</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🇨🇦</span><span>Canadá</span></div>
+                    <div class="grupo-selecao"><span>🇶🇦</span><span>Catar</span></div>
+                    <div class="grupo-selecao"><span>🇨🇭</span><span>Suíça</span></div>
+                    <div class="grupo-selecao"><span>🏴󠁧󠁢󠁷󠁬󠁳󠁿</span><span>País de Gales</span></div>
                 </div>
-                <button class="btn-copa-cta" onclick="openModal('Copa do Mundo 2026')">Garantir Meu Acesso</button>
+            </div>
+            <div class="grupo-card brasil-grupo" onclick="openSelecaoModal('Brasil','🇧🇷','C',6)">
+                <div class="grupo-label">Grupo C 🇧🇷</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao destaque"><span>🇧🇷</span><span>Brasil</span></div>
+                    <div class="grupo-selecao"><span>🇲🇦</span><span>Marrocos</span></div>
+                    <div class="grupo-selecao"><span>🇭🇹</span><span>Haiti</span></div>
+                    <div class="grupo-selecao"><span>🏴󠁧󠁢󠁳󠁣󠁴󠁿</span><span>Escócia</span></div>
+                </div>
+            </div>
+            <div class="grupo-card" onclick="openSelecaoModal('EUA','🇺🇸','D',6)">
+                <div class="grupo-label">Grupo D</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🇺🇸</span><span>EUA</span></div>
+                    <div class="grupo-selecao"><span>🇵🇾</span><span>Paraguai</span></div>
+                    <div class="grupo-selecao"><span>🇦🇺</span><span>Austrália</span></div>
+                    <div class="grupo-selecao"><span>🇹🇷</span><span>Turquia</span></div>
+                </div>
+            </div>
+            <div class="grupo-card" onclick="openSelecaoModal('Alemanha','🇩🇪','E',6)">
+                <div class="grupo-label">Grupo E</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🇩🇪</span><span>Alemanha</span></div>
+                    <div class="grupo-selecao"><span>🇨🇼</span><span>Curaçao</span></div>
+                    <div class="grupo-selecao"><span>🇨🇮</span><span>Costa do Marfim</span></div>
+                    <div class="grupo-selecao"><span>🇪🇨</span><span>Equador</span></div>
+                </div>
+            </div>
+            <div class="grupo-card" onclick="openSelecaoModal('Holanda','🇳🇱','F',6)">
+                <div class="grupo-label">Grupo F</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🇳🇱</span><span>Holanda</span></div>
+                    <div class="grupo-selecao"><span>🇯🇵</span><span>Japão</span></div>
+                    <div class="grupo-selecao"><span>🇹🇳</span><span>Tunísia</span></div>
+                    <div class="grupo-selecao"><span>🇺🇦</span><span>Ucrânia</span></div>
+                </div>
+            </div>
+            <div class="grupo-card" onclick="openSelecaoModal('Bélgica','🇧🇪','G',6)">
+                <div class="grupo-label">Grupo G</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🇧🇪</span><span>Bélgica</span></div>
+                    <div class="grupo-selecao"><span>🇪🇬</span><span>Egito</span></div>
+                    <div class="grupo-selecao"><span>🇮🇷</span><span>Irã</span></div>
+                    <div class="grupo-selecao"><span>🇳🇿</span><span>Nova Zelândia</span></div>
+                </div>
+            </div>
+            <div class="grupo-card" onclick="openSelecaoModal('Espanha','🇪🇸','H',6)">
+                <div class="grupo-label">Grupo H</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🇪🇸</span><span>Espanha</span></div>
+                    <div class="grupo-selecao"><span>🇨🇻</span><span>Cabo Verde</span></div>
+                    <div class="grupo-selecao"><span>🇸🇦</span><span>Arábia Saudita</span></div>
+                    <div class="grupo-selecao"><span>🇺🇾</span><span>Uruguai</span></div>
+                </div>
+            </div>
+            <div class="grupo-card" onclick="openSelecaoModal('França','🇫🇷','I',6)">
+                <div class="grupo-label">Grupo I</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🇫🇷</span><span>França</span></div>
+                    <div class="grupo-selecao"><span>🇸🇳</span><span>Senegal</span></div>
+                    <div class="grupo-selecao"><span>🇳🇴</span><span>Noruega</span></div>
+                    <div class="grupo-selecao"><span>🇮🇶</span><span>Iraque</span></div>
+                </div>
+            </div>
+            <div class="grupo-card" onclick="openSelecaoModal('Argentina','🇦🇷','J',6)">
+                <div class="grupo-label">Grupo J</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🇦🇷</span><span>Argentina</span></div>
+                    <div class="grupo-selecao"><span>🇩🇿</span><span>Argélia</span></div>
+                    <div class="grupo-selecao"><span>🇦🇹</span><span>Áustria</span></div>
+                    <div class="grupo-selecao"><span>🇯🇴</span><span>Jordânia</span></div>
+                </div>
+            </div>
+            <div class="grupo-card" onclick="openSelecaoModal('Portugal','🇵🇹','K',6)">
+                <div class="grupo-label">Grupo K</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🇵🇹</span><span>Portugal</span></div>
+                    <div class="grupo-selecao"><span>🇺🇿</span><span>Uzbequistão</span></div>
+                    <div class="grupo-selecao"><span>🇨🇴</span><span>Colômbia</span></div>
+                    <div class="grupo-selecao"><span>🇨🇩</span><span>RD Congo</span></div>
+                </div>
+            </div>
+            <div class="grupo-card" onclick="openSelecaoModal('Inglaterra','🏴󠁧󠁢󠁥󠁮󠁧󠁿','L',6)">
+                <div class="grupo-label">Grupo L</div>
+                <div class="grupo-selecoes">
+                    <div class="grupo-selecao"><span>🏴󠁧󠁢󠁥󠁮󠁧󠁿</span><span>Inglaterra</span></div>
+                    <div class="grupo-selecao"><span>🇭🇷</span><span>Croácia</span></div>
+                    <div class="grupo-selecao"><span>🇬🇭</span><span>Gana</span></div>
+                    <div class="grupo-selecao"><span>🇵🇦</span><span>Panamá</span></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="selecoes-wrap">
-        <h3 class="copa-matches-title">🌍 Seleções — clique para ver os jogos</h3>
-        <div class="selecoes-grid">
-            <div class="selecao-card" onclick="openSelecaoModal('Brasil','🇧🇷','E',9470)">
-                <span class="selecao-flag">🇧🇷</span><span class="selecao-name">Brasil</span><span class="selecao-grupo">Grupo E</span>
-            </div>
-            <div class="selecao-card" onclick="openSelecaoModal('Argentina','🇦🇷','A',9476)">
-                <span class="selecao-flag">🇦🇷</span><span class="selecao-name">Argentina</span><span class="selecao-grupo">Grupo A</span>
-            </div>
-            <div class="selecao-card" onclick="openSelecaoModal('França','🇫🇷','D',9478)">
-                <span class="selecao-flag">🇫🇷</span><span class="selecao-name">França</span><span class="selecao-grupo">Grupo D</span>
-            </div>
-            <div class="selecao-card" onclick="openSelecaoModal('Inglaterra','🏴󠁧󠁢󠁥󠁮󠁧󠁿','B',9477)">
-                <span class="selecao-flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span><span class="selecao-name">Inglaterra</span><span class="selecao-grupo">Grupo B</span>
-            </div>
-            <div class="selecao-card" onclick="openSelecaoModal('Alemanha','🇩🇪','C',9473)">
-                <span class="selecao-flag">🇩🇪</span><span class="selecao-name">Alemanha</span><span class="selecao-grupo">Grupo C</span>
-            </div>
-            <div class="selecao-card" onclick="openSelecaoModal('Portugal','🇵🇹','F',9471)">
-                <span class="selecao-flag">🇵🇹</span><span class="selecao-name">Portugal</span><span class="selecao-grupo">Grupo F</span>
-            </div>
-            <div class="selecao-card" onclick="openSelecaoModal('Espanha','🇪🇸','G',9474)">
-                <span class="selecao-flag">🇪🇸</span><span class="selecao-name">Espanha</span><span class="selecao-grupo">Grupo G</span>
-            </div>
-            <div class="selecao-card" onclick="openSelecaoModal('EUA','🇺🇸','H',9475)">
-                <span class="selecao-flag">🇺🇸</span><span class="selecao-name">EUA</span><span class="selecao-grupo">Grupo H</span>
-            </div>
+    <!-- Painel Próximas Partidas -->
+    <div class="copa-panel" id="copa-panel-partidas">
+        <div class="partidas-wrap" id="partidasWrap">
+            <div class="partidas-loading">⚽ Carregando próximas partidas em tempo real...</div>
+        </div>
+        <div style="text-align:center;margin-top:20px;">
+            <button class="btn-copa-cta" style="width:auto;padding:12px 32px;" onclick="openModal('Copa do Mundo 2026')">
+                🎬 Assistir tudo no VLTV Play — HD & 4K
+            </button>
         </div>
     </div>
 </section>

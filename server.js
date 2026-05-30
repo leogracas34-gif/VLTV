@@ -324,7 +324,26 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    let filePath = path.join(STATIC_DIR, reqPath === '/' ? 'index.html' : reqPath);
+    // ── OG Image (preview WhatsApp/redes sociais) ───────────────────────────
+    if (reqPath === '/og-image.jpg' || reqPath === '/og-image.svg') {
+        var ogPath = path.join(__dirname, 'og-image.svg');
+        if (fs.existsSync(ogPath)) {
+            res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400' });
+            fs.createReadStream(ogPath).pipe(res);
+        } else {
+            res.writeHead(404); res.end('Not found');
+        }
+        return;
+    }
+
+    // ── Keep-alive ping ──────────────────────────────────────────────────────
+    if (reqPath === '/ping') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('pong');
+        return;
+    }
+
+        let filePath = path.join(STATIC_DIR, reqPath === '/' ? 'index.html' : reqPath);
     if (!filePath.startsWith(STATIC_DIR)) { res.writeHead(403); res.end('Proibido'); return; }
     serveStatic(res, filePath);
 });
@@ -339,4 +358,15 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log('⚽  Football:', FOOTBALL_KEY   ? '✅ OK — dados em tempo real' : '⚠️  Não configurada — Copa sem tempo real');
     console.log('🎬  TMDB:    ✅ OK');
     console.log('');
+
+    // ── Keep-alive: auto-ping a cada 10 minutos para não suspender no Render ──
+    var SITE_URL = process.env.RENDER_EXTERNAL_URL || ('http://localhost:' + PORT);
+    setInterval(function() {
+        var mod = SITE_URL.startsWith('https') ? https : http;
+        mod.get(SITE_URL + '/ping', function(res) {
+            console.log('[keep-alive] ping ' + new Date().toLocaleTimeString('pt-BR') + ' → ' + res.statusCode);
+        }).on('error', function(e) {
+            console.warn('[keep-alive] erro:', e.message);
+        });
+    }, 10 * 60 * 1000); // 10 minutos
 });

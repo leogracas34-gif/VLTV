@@ -1,6 +1,6 @@
 // =============================================
 // VLTV Play — server.js
-// Backend Node.js — Gemini 2.0 Flash + TMDB + API-Football
+// Backend Node.js — Gemini 1.5 Flash + TMDB + API-Football
 // =============================================
 
 const http  = require('http');
@@ -168,7 +168,7 @@ function callGemini(history) {
 
         const req = https.request({
             hostname: 'generativelanguage.googleapis.com',
-            path:     `/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+            path:     `/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
             method:   'POST',
             headers:  {
                 'Content-Type':   'application/json',
@@ -307,7 +307,7 @@ const server = http.createServer(async (req, res) => {
                     console.error('[chat] GEMINI_API_KEY não configurada!');
                     return sendJSON(res, 200, { reply: 'Assistente indisponível no momento. Fale pelo WhatsApp! 💬' });
                 }
-                console.log('[chat] Chamando Gemini 2.0 Flash...');
+                console.log('[chat] Chamando Gemini 1.5 Flash...');
                 const result = await callGemini(history);
                 if (result.status !== 200 || result.data.error) {
                     console.error('[chat] Falhou:', JSON.stringify(result.data.error || {}));
@@ -326,13 +326,12 @@ const server = http.createServer(async (req, res) => {
 
     // ── OG Image PNG (preview WhatsApp/redes sociais) ──────────────────────
     if (reqPath === '/og-image.jpg' || reqPath === '/og-image.png') {
-        var ogJpgPath = path.join(__dirname, 'og-image.png');
-        if (fs.existsSync(ogJpgPath)) {
+        var ogPngPath = path.join(__dirname, 'og-image.png');
+        if (fs.existsSync(ogPngPath)) {
             res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=3600' });
-            fs.createReadStream(ogJpgPath).pipe(res);
+            fs.createReadStream(ogPngPath).pipe(res);
             return;
         }
-        // Fallback: serve SVG como PNG (WhatsApp aceita se Content-Type correto)
         var ogSvgPath = path.join(__dirname, 'og-image.svg');
         if (fs.existsSync(ogSvgPath)) {
             res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=3600' });
@@ -350,7 +349,7 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-        let filePath = path.join(STATIC_DIR, reqPath === '/' ? 'index.html' : reqPath);
+    let filePath = path.join(STATIC_DIR, reqPath === '/' ? 'index.html' : reqPath);
     if (!filePath.startsWith(STATIC_DIR)) { res.writeHead(403); res.end('Proibido'); return; }
     serveStatic(res, filePath);
 });
@@ -361,7 +360,7 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log('║        VLTV Play — Servidor Online       ║');
     console.log('╚══════════════════════════════════════════╝');
     console.log('🌐  URL:      http://0.0.0.0:' + PORT);
-    console.log('🔑  Gemini:  ', GEMINI_API_KEY ? '✅ OK — gemini-2.0-flash (API v1)' : '❌ NÃO CONFIGURADA — adicione GEMINI_API_KEY no Render');
+    console.log('🔑  Gemini:  ', GEMINI_API_KEY ? '✅ OK — gemini-1.5-flash (API v1)' : '❌ NÃO CONFIGURADA — adicione GEMINI_API_KEY no Render');
     console.log('⚽  Football:', FOOTBALL_KEY   ? '✅ OK — dados em tempo real' : '⚠️  Não configurada — Copa sem tempo real');
     console.log('🎬  TMDB:    ✅ OK');
     console.log('');
@@ -370,8 +369,8 @@ server.listen(PORT, '0.0.0.0', () => {
     var SITE_URL = process.env.RENDER_EXTERNAL_URL || ('http://localhost:' + PORT);
     setInterval(function() {
         var mod = SITE_URL.startsWith('https') ? https : http;
-        mod.get(SITE_URL + '/ping', function(res) {
-            console.log('[keep-alive] ping ' + new Date().toLocaleTimeString('pt-BR') + ' → ' + res.statusCode);
+        mod.get(SITE_URL + '/ping', function(pingRes) {
+            console.log('[keep-alive] ping ' + new Date().toLocaleTimeString('pt-BR') + ' → ' + pingRes.statusCode);
         }).on('error', function(e) {
             console.warn('[keep-alive] erro:', e.message);
         });

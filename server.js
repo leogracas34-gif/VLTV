@@ -154,10 +154,14 @@ function callFootball(endpoint) {
 
 function callGemini(history) {
     return new Promise((resolve, reject) => {
-        // system_instruction como campo separado — suportado em v1
+        // v1 não suporta system_instruction — injeta como primeira mensagem do histórico
+        const contentsWithSystem = [
+            { role: 'user',  parts: [{ text: SYSTEM_INSTRUCTION }] },
+            { role: 'model', parts: [{ text: 'Entendido! Sou o Assistente VLTV, pronto para ajudar.' }] },
+            ...history
+        ];
         const bodyObj = {
-            system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-            contents: history,
+            contents: contentsWithSystem,
             generationConfig: {
                 temperature:     0.7,
                 maxOutputTokens: 1000,

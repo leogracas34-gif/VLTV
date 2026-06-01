@@ -307,7 +307,7 @@ const server = http.createServer(async (req, res) => {
                     console.error('[chat] GEMINI_API_KEY não configurada!');
                     return sendJSON(res, 200, { reply: 'Assistente indisponível no momento. Fale pelo WhatsApp! 💬' });
                 }
-                console.log('[chat] Chamando Gemini 1.5 Flash...');
+                console.log('[chat] Chamando Gemini 1.5 Flash Latest...');
                 const result = await callGemini(history);
                 if (result.status !== 200 || result.data.error) {
                     console.error('[chat] Falhou:', JSON.stringify(result.data.error || {}));
@@ -360,7 +360,7 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log('║        VLTV Play — Servidor Online       ║');
     console.log('╚══════════════════════════════════════════╝');
     console.log('🌐  URL:      http://0.0.0.0:' + PORT);
-    console.log('🔑  Gemini:  ', GEMINI_API_KEY ? '✅ OK — gemini-1.5-flash (API v1)' : '❌ NÃO CONFIGURADA — adicione GEMINI_API_KEY no Render');
+    console.log('🔑  Gemini:  ', GEMINI_API_KEY ? '✅ OK — gemini-1.5-flash-latest (API v1)' : '❌ NÃO CONFIGURADA — adicione GEMINI_API_KEY no Render');
     console.log('⚽  Football:', FOOTBALL_KEY   ? '✅ OK — dados em tempo real' : '⚠️  Não configurada — Copa sem tempo real');
     console.log('🎬  TMDB:    ✅ OK');
     console.log('');

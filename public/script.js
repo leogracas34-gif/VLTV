@@ -24,7 +24,7 @@ const GENRES_TV = {
 // ══════════════════════════════════════════════
 var DESTAQUES = [
     {
-        titulo: 'Muti - Crime e Poder',   // Nome exato do filme/série em português ou inglês
+        titulo: 'Muti: Crime e Poder',   // Nome exato do filme/série em português ou inglês
         tipo: 'filme'                  // 'filme' ou 'serie'
     },
     {

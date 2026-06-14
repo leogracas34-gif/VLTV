@@ -17,14 +17,29 @@ const GENRES_TV = {
     10765:'Sci-Fi',10766:'Novela',10768:'Guerra',37:'Faroeste'
 };
 
-// ── TMDB via proxy backend (com fallback direto à API TMDB) ──
+// ══════════════════════════════════════════════
+// DESTAQUES DA SEMANA
+// ── Para trocar os destaques, edite apenas os
+//    campos "titulo" e "tipo" abaixo.
+// ══════════════════════════════════════════════
+var DESTAQUES = [
+    {
+        titulo: 'A Minecraft Movie',   // Nome exato do filme/série em português ou inglês
+        tipo: 'filme'                  // 'filme' ou 'serie'
+    },
+    {
+        titulo: 'The Last of Us',      // Nome exato do filme/série em português ou inglês
+        tipo: 'serie'                  // 'filme' ou 'serie'
+    }
+];
+
+// ── TMDB via proxy backend (com fallback direto) ──
 var TMDB_KEY_FALLBACK = '9b73f5dd15b8165b1b57419be2f29128';
 async function tmdb(endpoint) {
     try {
         var r = await fetch('/api/tmdb?endpoint=' + encodeURIComponent(endpoint));
         if (r.ok) return r.json();
     } catch(e) { /* servidor offline, usa fallback */ }
-    // Fallback direto à API TMDB
     var sep = endpoint.indexOf('?') > -1 ? '&' : '?';
     var r2 = await fetch('https://api.themoviedb.org/3/' + endpoint + sep + 'api_key=' + TMDB_KEY_FALLBACK);
     if (!r2.ok) throw new Error('TMDB ' + r2.status);
@@ -72,9 +87,7 @@ function buildCarousel(trackEl, viewEl, prevEl, nextEl) {
         pos = clamp(p);
         var tr = animate ? 'transform .4s ease' : 'none';
         trackEl.style.transition = tr;
-        trackEl.style.webkitTransition = tr;
         trackEl.style.transform = 'translateX(-' + pos + 'px)';
-        trackEl.style.webkitTransform = 'translateX(-' + pos + 'px)';
     }
 
     if (prevEl) prevEl.addEventListener('click', function() { move(pos - CARD_W * 2); });
@@ -103,7 +116,7 @@ function buildCarousel(trackEl, viewEl, prevEl, nextEl) {
 }
 
 // ══════════════════════════════════════════════
-// CARD DE MÍDIA
+// CARD DE MÍDIA (carrosséis)
 // ══════════════════════════════════════════════
 function createCard(item, isTV) {
     var poster = item.poster_path
@@ -134,7 +147,110 @@ function createCard(item, isTV) {
 }
 
 // ══════════════════════════════════════════════
-// CARREGAR FILMES EM CARTAZ (últimos 60 dias)
+// DESTAQUES DA SEMANA — CARREGAR
+// ══════════════════════════════════════════════
+async function loadDestaques() {
+    var grid = document.getElementById('destaquesGrid');
+    if (!grid) return;
+
+    for (var i = 0; i < DESTAQUES.length; i++) {
+        var cfg   = DESTAQUES[i];
+        var card  = document.getElementById('destaqueCard' + i);
+        if (!card) continue;
+
+        try {
+            var isTV = cfg.tipo === 'serie';
+            var searchType = isTV ? 'tv' : 'movie';
+            var searchData = await tmdb('search/' + searchType + '?query=' + encodeURIComponent(cfg.titulo) + '&language=pt-BR&page=1');
+            var item = (searchData.results || [])[0];
+
+            if (!item) {
+                // Tenta busca em inglês como fallback
+                searchData = await tmdb('search/' + searchType + '?query=' + encodeURIComponent(cfg.titulo) + '&language=en-US&page=1');
+                item = (searchData.results || [])[0];
+            }
+
+            if (!item) {
+                card.innerHTML = renderDestaqueErro(cfg);
+                continue;
+            }
+
+            // Busca detalhes completos (gêneros, sinopse em pt-BR, etc.)
+            var details = await tmdb(searchType + '/' + item.id + '?language=pt-BR');
+            renderDestaqueCard(card, details, cfg, isTV);
+
+        } catch(e) {
+            console.error('[Destaque ' + i + ']', e);
+            card.innerHTML = renderDestaqueErro(cfg);
+        }
+    }
+}
+
+function renderDestaqueCard(card, details, cfg, isTV) {
+    var poster = details.poster_path
+        ? 'https://image.tmdb.org/t/p/w342' + details.poster_path
+        : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=342';
+
+    var titulo   = details.title || details.name || cfg.titulo;
+    var sinopse  = details.overview || 'Sinopse não disponível.';
+    var rating   = details.vote_average && details.vote_average > 0
+        ? '⭐ ' + parseFloat(details.vote_average).toFixed(1)
+        : '';
+    var ano      = (details.release_date || details.first_air_date || '').split('-')[0] || '';
+    var generos  = (details.genres || []).slice(0, 3);
+    var tipoLabel = isTV ? 'Série' : 'Filme';
+    var tipoClass = isTV ? 'serie' : 'filme';
+
+    card.innerHTML =
+        '<div class="destaque-card-inner">' +
+            '<div class="destaque-poster-wrap">' +
+                '<img class="destaque-poster" src="' + poster + '" alt="' + escapeHtml(titulo) + '"' +
+                ' onerror="this.src=\'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=342\'">' +
+                '<span class="destaque-tipo-badge ' + tipoClass + '">' + tipoLabel + '</span>' +
+            '</div>' +
+            '<div class="destaque-info">' +
+                '<div class="destaque-semana-label">🎯 Destaque da Semana</div>' +
+                '<div class="destaque-titulo">' + escapeHtml(titulo) + '</div>' +
+                '<div class="destaque-meta">' +
+                    (rating ? '<span class="destaque-rating">' + rating + '</span>' : '') +
+                    (ano    ? '<span class="destaque-ano">' + ano + '</span>' : '') +
+                '</div>' +
+                (generos.length > 0
+                    ? '<div class="destaque-generos">' +
+                        generos.map(function(g){ return '<span class="destaque-genero-tag">' + escapeHtml(g.name) + '</span>'; }).join('') +
+                      '</div>'
+                    : '') +
+                '<p class="destaque-sinopse">' + escapeHtml(sinopse) + '</p>' +
+            '</div>' +
+        '</div>' +
+        '<div class="destaque-footer">' +
+            '<span class="destaque-disponivel">📺 Disponível no VLTV Play</span>' +
+            '<button class="destaque-cta-btn" onclick="openModal(\'Destaque — ' + escapeHtml(titulo) + '\')">Assistir agora ›</button>' +
+        '</div>';
+
+    // Clique no card abre modal de detalhes
+    card.querySelector('.destaque-card-inner').addEventListener('click', function() {
+        openMediaModal(details, isTV);
+    });
+    card.querySelector('.destaque-card-inner').style.cursor = 'pointer';
+}
+
+function renderDestaqueErro(cfg) {
+    return '<div class="destaque-card-inner" style="padding:30px;align-items:center;justify-content:center;min-height:150px">' +
+        '<div style="text-align:center;color:#555">' +
+            '<div style="font-size:2rem;margin-bottom:8px">🎬</div>' +
+            '<div style="font-size:0.85rem">' + escapeHtml(cfg.titulo) + '</div>' +
+            '<div style="font-size:0.72rem;color:#444;margin-top:4px">Em breve no VLTV Play</div>' +
+        '</div>' +
+    '</div>' +
+    '<div class="destaque-footer">' +
+        '<span class="destaque-disponivel">📺 Em breve</span>' +
+        '<button class="destaque-cta-btn" onclick="openModal(\'Destaque\')">Solicitar Acesso ›</button>' +
+    '</div>';
+}
+
+// ══════════════════════════════════════════════
+// CARROSSÉIS — FILMES EM CARTAZ
 // ══════════════════════════════════════════════
 async function loadNowPlaying() {
     var track = document.getElementById('trackCinema');
@@ -172,7 +288,7 @@ async function loadNowPlaying() {
 }
 
 // ══════════════════════════════════════════════
-// CARREGAR PRÓXIMOS LANÇAMENTOS
+// CARROSSÉIS — PRÓXIMOS LANÇAMENTOS
 // ══════════════════════════════════════════════
 async function loadMovies() {
     var track = document.getElementById('trackMovies');
@@ -192,7 +308,7 @@ async function loadMovies() {
 }
 
 // ══════════════════════════════════════════════
-// CARREGAR SÉRIES
+// CARROSSÉIS — SÉRIES
 // ══════════════════════════════════════════════
 async function loadSeries() {
     var track = document.getElementById('trackSeries');
@@ -301,7 +417,6 @@ async function openMediaModal(item, isTV) {
         meta.innerHTML = '<div class="media-meta">📆 <strong>' + formatDate(item.release_date || item.first_air_date || '') + '</strong></div>';
     }
 
-    // ── CTA: em cartaz no cinema → "Em breve na VLTV Play" / futuro → "Disponível após lançamento"
     var releaseDate = item.release_date || item.first_air_date || '';
     var todayStr = new Date().toISOString().split('T')[0];
     if (!releaseDate || releaseDate <= todayStr) {
@@ -318,320 +433,6 @@ function closeMediaModal() {
 }
 function handleMediaModalClick(e) {
     if (e.target === document.getElementById('mediaModal')) closeMediaModal();
-}
-
-
-// ══════════════════════════════════════════════
-// COPA DO MUNDO — TEMPO REAL
-// ══════════════════════════════════════════════
-
-// Aba da Copa
-function switchCopaTab(tab, btn) {
-    document.querySelectorAll('.copa-tab').forEach(function(t){ t.classList.remove('active'); });
-    document.querySelectorAll('.copa-panel').forEach(function(p){ p.classList.remove('active'); });
-    btn.classList.add('active');
-    var panel = document.getElementById('copa-panel-' + tab);
-    if (panel) panel.classList.add('active');
-    if (tab === 'partidas') loadProximasPartidas();
-}
-
-// Verifica jogos ao vivo ao carregar
-async function loadCopaMundoData() {
-    try {
-        var r = await fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&live=all'));
-        if (!r.ok) return;
-        var data = await r.json();
-        var live = data.response || [];
-        if (live.length > 0) {
-            var badge = document.getElementById('copaLiveBadge');
-            if (badge) badge.style.display = 'flex';
-        }
-    } catch(e) {
-        console.log('[Copa] verificação live silenciosa');
-    }
-}
-
-// Próximas partidas — carregadas ao clicar na aba
-var proximasCarregadas = false;
-async function loadProximasPartidas() {
-    if (proximasCarregadas) return;
-    var wrap = document.getElementById('partidasWrap');
-    if (!wrap) return;
-    wrap.innerHTML = '<div class="partidas-loading">⚽ Carregando partidas em tempo real...</div>';
-
-    try {
-        // Busca ao vivo + todas as partidas da Copa (fase de grupos: 11 jun – 2 jul)
-        var results = await Promise.all([
-            fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&live=all'))
-                .then(function(r){ return r.ok ? r.json() : {response:[]}; }).catch(function(){ return {response:[]}; }),
-            fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&from=2026-06-11&to=2026-07-19'))
-                .then(function(r){ return r.ok ? r.json() : {response:[]}; }).catch(function(){ return {response:[]}; })
-        ]);
-
-        var live    = results[0].response || [];
-        var allFixt = results[1].response || [];
-
-        if (live.length === 0 && allFixt.length === 0) {
-            wrap.innerHTML = '<div class="partidas-loading">⚽ Nenhuma partida encontrada ainda. A Copa começa em 11 de junho de 2026!</div>';
-            return;
-        }
-
-        proximasCarregadas = true;
-
-        // Separa ao vivo dos demais
-        var liveIds = {};
-        live.forEach(function(f){ liveIds[f.fixture.id] = true; });
-        var resto = allFixt.filter(function(f){ return !liveIds[f.fixture.id]; });
-
-        // Agrupa por rodada
-        var rodadas = {};
-        live.forEach(function(f) {
-            var r = '🔴 AO VIVO'; if (!rodadas[r]) rodadas[r] = []; rodadas[r].push({f:f, isLive:true});
-        });
-        resto.forEach(function(f) {
-            var r = f.league.round || 'Fase de Grupos'; if (!rodadas[r]) rodadas[r] = []; rodadas[r].push({f:f, isLive:false});
-        });
-
-        var html = '';
-        Object.keys(rodadas).forEach(function(rodada) {
-            html += '<div class="partidas-rodada-titulo">' + escapeHtml(rodada) + '</div>';
-            rodadas[rodada].forEach(function(item) {
-                var f = item.f;
-                var isLive = item.isLive;
-                var home = f.teams.home.name;
-                var away = f.teams.away.name;
-                var isBrasil = home.indexOf('Brazil') > -1 || away.indexOf('Brazil') > -1
-                             || home.indexOf('Brasil') > -1 || away.indexOf('Brasil') > -1;
-                var isEnd = f.fixture.status.short === 'FT';
-                var sH = f.goals.home !== null ? f.goals.home : '';
-                var sA = f.goals.away !== null ? f.goals.away : '';
-                var min = f.fixture.status.elapsed ? f.fixture.status.elapsed + "'" : '';
-                var dateObj = new Date(f.fixture.date);
-                var dateStr = dateObj.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short' });
-                var timeStr = dateObj.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-                var local = f.fixture.venue && f.fixture.venue.name ? f.fixture.venue.name : '';
-
-                html += '<div class="partida-card' + (isBrasil ? ' destaque-brasil' : '') + '">' +
-                    '<div class="partida-info">' +
-                        (isLive
-                            ? '<span class="partida-grupo" style="color:#e50914">🔴 AO VIVO ' + min + '</span>'
-                            : '<span class="partida-data">📅 ' + dateStr + '</span>') +
-                        (!isLive ? '<span class="partida-horario">🕐 ' + timeStr + ' (Brasília)</span>' : '') +
-                        (local ? '<span class="partida-local">📍 ' + escapeHtml(local) + '</span>' : '') +
-                    '</div>' +
-                    '<div class="partida-times">' +
-                        '<div class="partida-time">' +
-                            (f.teams.home.logo ? '<img src="'+f.teams.home.logo+'" alt="">' : '') +
-                            '<span>' + escapeHtml(home) + '</span>' +
-                        '</div>' +
-                        (isLive || isEnd
-                            ? '<span class="match-score">' + sH + ' × ' + sA + '</span>'
-                            : '<span class="partida-vs">vs</span>') +
-                        '<div class="partida-time">' +
-                            (f.teams.away.logo ? '<img src="'+f.teams.away.logo+'" alt="">' : '') +
-                            '<span>' + escapeHtml(away) + '</span>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
-            });
-        });
-
-        wrap.innerHTML = html || '<div class="partidas-loading">Nenhuma partida encontrada.</div>';
-
-    } catch(e) {
-        console.error('[Partidas]', e);
-        wrap.innerHTML = '<div class="partidas-loading">⚠️ Erro ao carregar. Configure FOOTBALL_KEY no Render.</div>';
-    }
-}
-
-// ══════════════════════════════════════════════
-// MODAL SELEÇÃO — TEMPO REAL
-// ══════════════════════════════════════════════
-async function openSelecaoModal(nome, bandeira, grupo, teamId) {
-    var modal   = document.getElementById('selecaoModal');
-    var content = document.getElementById('selecaoContent');
-    if (!modal || !content) return;
-
-    // Mostra loading imediatamente
-    content.innerHTML = '<div class="selecao-loading"><div class="selecao-loading-flag">' + bandeira + '</div><p>Buscando dados de <strong>' + nome + '</strong> em tempo real...</p></div>';
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-
-    try {
-        // Busca jogos da seleção na Copa 2026 em paralelo
-        var endpoints = [
-            'fixtures?league=1&season=2026&team=' + teamId,
-            'teams/statistics?league=1&season=2026&team=' + teamId,
-        ];
-
-        var results = await Promise.all(
-            endpoints.map(function(ep) {
-                return fetch('/api/football?endpoint=' + encodeURIComponent(ep))
-                    .then(function(r) { return r.ok ? r.json() : { response: [] }; })
-                    .catch(function() { return { response: [] }; });
-            })
-        );
-
-        var fixtures = results[0].response || [];
-        var stats    = results[1].response || null;
-
-        renderSelecaoModal(nome, bandeira, grupo, fixtures, stats);
-
-    } catch(e) {
-        // Fallback estático se a API não estiver configurada
-        renderSelecaoModalEstatico(nome, bandeira, grupo);
-    }
-}
-
-function renderSelecaoModal(nome, bandeira, grupo, fixtures, stats) {
-    var content = document.getElementById('selecaoContent');
-    if (!content) return;
-
-    var hoje = new Date().toISOString().split('T')[0];
-
-    // Separa jogos passados e futuros
-    var passados = fixtures.filter(function(f) {
-        return f.fixture.date && f.fixture.date.split('T')[0] < hoje;
-    });
-    var futuros = fixtures.filter(function(f) {
-        return f.fixture.date && f.fixture.date.split('T')[0] >= hoje;
-    });
-    var aoVivo = fixtures.filter(function(f) {
-        return f.fixture.status.short === 'LIVE' || f.fixture.status.short === '1H' || f.fixture.status.short === '2H';
-    });
-
-    var html = '<div class="selecao-modal-header">' +
-        '<span class="selecao-modal-flag">' + bandeira + '</span>' +
-        '<div>' +
-            '<h3 class="selecao-modal-nome">' + nome + '</h3>' +
-            '<p class="selecao-modal-grupo">Grupo ' + grupo + ' · Copa do Mundo 2026</p>' +
-        '</div>' +
-    '</div>';
-
-    // Estatísticas se disponíveis
-    if (stats && stats.fixtures) {
-        var v = stats.fixtures.wins && stats.fixtures.wins.total ? stats.fixtures.wins.total : 0;
-        var e = stats.fixtures.draws && stats.fixtures.draws.total ? stats.fixtures.draws.total : 0;
-        var d = stats.fixtures.loses && stats.fixtures.loses.total ? stats.fixtures.loses.total : 0;
-        var gf = stats.goals && stats.goals.for && stats.goals.for.total && stats.goals.for.total.total ? stats.goals.for.total.total : 0;
-        var gc = stats.goals && stats.goals.against && stats.goals.against.total && stats.goals.against.total.total ? stats.goals.against.total.total : 0;
-        html += '<div class="selecao-stats-row">' +
-            '<div class="selecao-stat-item"><span class="s-val green-val">' + v + '</span><span class="s-label">Vitórias</span></div>' +
-            '<div class="selecao-stat-item"><span class="s-val yellow-val">' + e + '</span><span class="s-label">Empates</span></div>' +
-            '<div class="selecao-stat-item"><span class="s-val red-val">' + d + '</span><span class="s-label">Derrotas</span></div>' +
-            '<div class="selecao-stat-item"><span class="s-val">' + gf + '</span><span class="s-label">Gols Feitos</span></div>' +
-            '<div class="selecao-stat-item"><span class="s-val">' + gc + '</span><span class="s-label">Gols Sofridos</span></div>' +
-        '</div>';
-    }
-
-    // Jogo ao vivo
-    if (aoVivo.length > 0) {
-        var f = aoVivo[0];
-        var sH = f.goals.home !== null ? f.goals.home : 0;
-        var sA = f.goals.away !== null ? f.goals.away : 0;
-        var min = f.fixture.status.elapsed ? f.fixture.status.elapsed + "'" : 'AO VIVO';
-        html += '<div class="selecao-live-jogo">' +
-            '<div class="selecao-live-label"><span class="live-dot"></span> AO VIVO — ' + min + '</div>' +
-            '<div class="selecao-live-placar">' +
-                '<div class="selecao-live-time">' +
-                    (f.teams.home.logo ? '<img src="'+f.teams.home.logo+'" class="team-logo-lg" alt="">' : '') +
-                    '<span>' + escapeHtml(f.teams.home.name) + '</span>' +
-                '</div>' +
-                '<div class="selecao-live-score">' + sH + ' × ' + sA + '</div>' +
-                '<div class="selecao-live-time">' +
-                    (f.teams.away.logo ? '<img src="'+f.teams.away.logo+'" class="team-logo-lg" alt="">' : '') +
-                    '<span>' + escapeHtml(f.teams.away.name) + '</span>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
-    }
-
-    // Próximos jogos
-    if (futuros.length > 0) {
-        html += '<h4 class="selecao-jogos-title">📅 Próximos Jogos</h4><div class="selecao-jogos">';
-        futuros.slice(0, 4).forEach(function(f) {
-            var dateObj = new Date(f.fixture.date);
-            var dateStr = dateObj.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
-            var timeStr = dateObj.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-            var isHome  = f.teams.home.name.toLowerCase().includes(nome.toLowerCase().split(' ')[0].toLowerCase());
-            var adversario = isHome ? f.teams.away : f.teams.home;
-            var fase = f.league.round || 'Fase de Grupos';
-            html += '<div class="selecao-jogo">' +
-                '<div class="selecao-jogo-info">' +
-                    '<span class="selecao-jogo-fase">' + fase + '</span>' +
-                    '<span class="selecao-jogo-data">📅 ' + dateStr + ' · ' + timeStr + '</span>' +
-                '</div>' +
-                '<div class="selecao-jogo-adversario">' +
-                    (adversario.logo ? '<img src="'+adversario.logo+'" class="team-logo" alt="">' : '') +
-                    '<span>vs ' + escapeHtml(adversario.name) + '</span>' +
-                '</div>' +
-                '<span class="match-status upcoming">Em breve</span>' +
-            '</div>';
-        });
-        html += '</div>';
-    }
-
-    // Jogos passados (resultados)
-    if (passados.length > 0) {
-        html += '<h4 class="selecao-jogos-title">📊 Resultados</h4><div class="selecao-jogos">';
-        passados.slice(-3).reverse().forEach(function(f) {
-            var dateObj = new Date(f.fixture.date);
-            var dateStr = dateObj.toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
-            var sH = f.goals.home !== null ? f.goals.home : '-';
-            var sA = f.goals.away !== null ? f.goals.away : '-';
-            html += '<div class="selecao-jogo">' +
-                '<div class="selecao-jogo-info">' +
-                    '<span class="selecao-jogo-data">📅 ' + dateStr + '</span>' +
-                '</div>' +
-                '<div class="match-teams" style="gap:6px">' +
-                    (f.teams.home.logo ? '<img src="'+f.teams.home.logo+'" class="team-logo" alt="">' : '') +
-                    '<span class="team-name" style="font-size:0.78rem">' + escapeHtml(f.teams.home.name) + '</span>' +
-                    '<span class="match-score">' + sH + ' × ' + sA + '</span>' +
-                    '<span class="team-name" style="font-size:0.78rem">' + escapeHtml(f.teams.away.name) + '</span>' +
-                    (f.teams.away.logo ? '<img src="'+f.teams.away.logo+'" class="team-logo" alt="">' : '') +
-                '</div>' +
-                '<span class="match-status finished">Encerrado</span>' +
-            '</div>';
-        });
-        html += '</div>';
-    }
-
-    if (fixtures.length === 0) {
-        html += '<div class="selecao-sem-dados">⚽ Jogos da Copa do Mundo 2026 serão exibidos aqui quando confirmados pela FIFA.</div>';
-    }
-
-    html += '<p class="selecao-aviso">📺 Assista todos os jogos de <strong>' + nome + '</strong> ao vivo no VLTV Play em HD e 4K</p>' +
-        '<button class="btn-modal-submit" style="margin-top:14px;" onclick="closeSelecaoModal();openModal(\'Copa do Mundo 2026\')">🎬 Garantir Meu Acesso</button>';
-
-    content.innerHTML = html;
-}
-
-function renderSelecaoModalEstatico(nome, bandeira, grupo) {
-    var content = document.getElementById('selecaoContent');
-    if (!content) return;
-    content.innerHTML =
-        '<div class="selecao-modal-header">' +
-            '<span class="selecao-modal-flag">' + bandeira + '</span>' +
-            '<div><h3 class="selecao-modal-nome">' + nome + '</h3>' +
-            '<p class="selecao-modal-grupo">Grupo ' + grupo + ' · Copa do Mundo 2026</p></div>' +
-        '</div>' +
-        '<div class="selecao-modal-info">' +
-            '<div class="selecao-info-item"><span>🏆</span><span>Copa do Mundo 2026</span></div>' +
-            '<div class="selecao-info-item"><span>📍</span><span>EUA · Canadá · México</span></div>' +
-            '<div class="selecao-info-item"><span>📅</span><span>11 Jun — 19 Jul 2026</span></div>' +
-        '</div>' +
-        '<div class="selecao-sem-dados">⚽ Configure a chave FOOTBALL_KEY no Render para ver os jogos em tempo real.</div>' +
-        '<p class="selecao-aviso">📺 Assista todos os jogos de <strong>' + nome + '</strong> ao vivo no VLTV Play em HD e 4K</p>' +
-        '<button class="btn-modal-submit" style="margin-top:14px;" onclick="closeSelecaoModal();openModal(\'Copa do Mundo 2026\')">🎬 Garantir Meu Acesso</button>';
-}
-
-function closeSelecaoModal() {
-    var m = document.getElementById('selecaoModal');
-    if (m) m.classList.remove('active');
-    document.body.style.overflow = '';
-}
-function handleSelecaoClick(e) {
-    if (e.target === document.getElementById('selecaoModal')) closeSelecaoModal();
 }
 
 // ══════════════════════════════════════════════
@@ -691,7 +492,7 @@ function toggleChat() {
     if (!box) return;
     if (chatOpen) {
         box.style.display = 'flex';
-        box.offsetHeight; // força reflow
+        box.offsetHeight;
         box.classList.add('open');
         if (icon) icon.style.display = 'none';
         if (cls)  cls.style.display  = 'block';
@@ -760,245 +561,12 @@ async function sendChatMessage() {
     }
 }
 
-
-// ── DADOS ESTÁTICOS DOS GRUPOS (fallback se API não retornar) ──
-var GRUPOS_ESTATICOS = {
-    A: { selecoes: [{flag:'🇲🇽',nome:'México'},{flag:'🇿🇦',nome:'África do Sul'},{flag:'🇰🇷',nome:'Coreia do Sul'},{flag:'🇨🇿',nome:'Rep. Tcheca'}] },
-    B: { selecoes: [{flag:'🇨🇦',nome:'Canadá'},{flag:'🇧🇦',nome:'Bósnia-Herz.'},{flag:'🇶🇦',nome:'Catar'},{flag:'🇨🇭',nome:'Suíça'}] },
-    C: { selecoes: [{flag:'🇧🇷',nome:'Brasil'},{flag:'🇲🇦',nome:'Marrocos'},{flag:'🇭🇹',nome:'Haiti'},{flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',nome:'Escócia'}] },
-    D: { selecoes: [{flag:'🇺🇸',nome:'EUA'},{flag:'🇵🇾',nome:'Paraguai'},{flag:'🇦🇺',nome:'Austrália'},{flag:'🇹🇷',nome:'Turquia'}] },
-    E: { selecoes: [{flag:'🇩🇪',nome:'Alemanha'},{flag:'🇨🇼',nome:'Curaçao'},{flag:'🇨🇮',nome:'Costa do Marfim'},{flag:'🇪🇨',nome:'Equador'}] },
-    F: { selecoes: [{flag:'🇳🇱',nome:'Holanda'},{flag:'🇯🇵',nome:'Japão'},{flag:'🇹🇳',nome:'Tunísia'},{flag:'🇺🇦',nome:'Ucrânia'}] },
-    G: { selecoes: [{flag:'🇧🇪',nome:'Bélgica'},{flag:'🇪🇬',nome:'Egito'},{flag:'🇮🇷',nome:'Irã'},{flag:'🇳🇿',nome:'Nova Zelândia'}] },
-    H: { selecoes: [{flag:'🇪🇸',nome:'Espanha'},{flag:'🇨🇻',nome:'Cabo Verde'},{flag:'🇸🇦',nome:'Arábia Saudita'},{flag:'🇺🇾',nome:'Uruguai'}] },
-    I: { selecoes: [{flag:'🇫🇷',nome:'França'},{flag:'🇸🇳',nome:'Senegal'},{flag:'🇳🇴',nome:'Noruega'},{flag:'🇮🇶',nome:'Iraque'}] },
-    J: { selecoes: [{flag:'🇦🇷',nome:'Argentina'},{flag:'🇩🇿',nome:'Argélia'},{flag:'🇦🇹',nome:'Áustria'},{flag:'🇯🇴',nome:'Jordânia'}] },
-    K: { selecoes: [{flag:'🇵🇹',nome:'Portugal'},{flag:'🇺🇿',nome:'Uzbequistão'},{flag:'🇨🇴',nome:'Colômbia'},{flag:'🇨🇩',nome:'RD Congo'}] },
-    L: { selecoes: [{flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',nome:'Inglaterra'},{flag:'🇭🇷',nome:'Croácia'},{flag:'🇬🇭',nome:'Gana'},{flag:'🇵🇦',nome:'Panamá'}] }
-};
-
-// ══════════════════════════════════════════════
-// MODAL GRUPO — CLASSIFICAÇÃO + JOGOS
-// ══════════════════════════════════════════════
-async function openGrupoModal(grupo) {
-    var modal   = document.getElementById('grupoModal');
-    var content = document.getElementById('grupoModalContent');
-    if (!modal || !content) return;
-
-    var isBrasil = grupo === 'C';
-    content.innerHTML = '<div class="selecao-loading">⚽ Carregando classificação do Grupo ' + grupo + '...</div>';
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-
-    try {
-        // Busca standings + TODAS as fixtures da Copa (filtramos por grupo no JS)
-        var results = await Promise.all([
-            fetch('/api/football?endpoint=' + encodeURIComponent('standings?league=1&season=2026'))
-                .then(function(r){ return r.ok ? r.json() : {response:[]}; })
-                .catch(function(){ return {response:[]}; }),
-            fetch('/api/football?endpoint=' + encodeURIComponent('fixtures?league=1&season=2026&from=2026-06-11&to=2026-07-19'))
-                .then(function(r){ return r.ok ? r.json() : {response:[]}; })
-                .catch(function(){ return {response:[]}; })
-        ]);
-
-        var standingsData = results[0].response || [];
-        var allFixtures   = results[1].response || [];
-
-        // Filtra fixtures do grupo: round contém "Group X" ou "Grupo X"
-        var fixturesData = allFixtures.filter(function(f) {
-            var round = (f.league.round || '').toUpperCase();
-            return round.indexOf('GROUP ' + grupo) > -1 || round.indexOf('GRUPO ' + grupo) > -1;
-        });
-
-        // Tenta extrair o grupo dos standings
-        var grupoStandings = null;
-        if (standingsData.length > 0 && standingsData[0].league && standingsData[0].league.standings) {
-            var allStandings = standingsData[0].league.standings;
-            for (var i = 0; i < allStandings.length; i++) {
-                var s = allStandings[i];
-                if (s.length > 0 && s[0].group && s[0].group.toUpperCase().indexOf('GROUP ' + grupo) > -1) {
-                    grupoStandings = s;
-                    break;
-                }
-            }
-        }
-
-        renderGrupoModal(grupo, grupoStandings, fixturesData);
-
-    } catch(e) {
-        console.error('[GrupoModal]', e);
-        renderGrupoModalEstatico(grupo);
-    }
-}
-
-function renderGrupoModal(grupo, standings, fixtures) {
-    var content = document.getElementById('grupoModalContent');
-    if (!content) return;
-    var estatico = GRUPOS_ESTATICOS[grupo] || { selecoes: [] };
-    var isBrasil = grupo === 'C';
-
-    var html = '<div class="grupo-modal-header">' +
-        '<div>' +
-            '<div class="grupo-modal-titulo">Grupo ' + grupo + '</div>' +
-            '<div class="grupo-modal-sub">Copa do Mundo 2026 — Classificação</div>' +
-        '</div>' +
-    '</div>';
-
-    // TABELA DE CLASSIFICAÇÃO
-    html += '<h4 class="grupo-jogos-titulo">📊 Classificação</h4>';
-    html += '<table class="classificacao-table"><thead><tr>' +
-        '<th>#</th><th style="text-align:left">Seleção</th>' +
-        '<th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th>' +
-    '</tr></thead><tbody>';
-
-    if (standings && standings.length > 0) {
-        // Dados reais da API
-        standings.forEach(function(team, idx) {
-            var isBR = team.team && (team.team.name === 'Brazil' || team.team.name === 'Brasil');
-            html += '<tr class="' + (isBR ? 'class-brasil' : '') + '">' +
-                '<td class="class-pos">' + team.rank + '</td>' +
-                '<td><div class="class-time">' +
-                    (team.team.logo ? '<img src="'+team.team.logo+'" alt="">' : '') +
-                    '<span>' + escapeHtml(team.team.name) + '</span>' +
-                '</div></td>' +
-                '<td class="class-pts">' + team.points + '</td>' +
-                '<td>' + (team.all ? team.all.played : 0) + '</td>' +
-                '<td>' + (team.all ? team.all.win : 0) + '</td>' +
-                '<td>' + (team.all ? team.all.draw : 0) + '</td>' +
-                '<td>' + (team.all ? team.all.lose : 0) + '</td>' +
-                '<td>' + (team.all && team.all.goals ? team.all.goals.for : 0) + '</td>' +
-                '<td>' + (team.all && team.all.goals ? team.all.goals.against : 0) + '</td>' +
-                '<td>' + (team.goalsDiff || 0) + '</td>' +
-            '</tr>';
-        });
-    } else {
-        // Fallback estático — torneio não começou
-        estatico.selecoes.forEach(function(s, idx) {
-            var isBR = s.nome === 'Brasil';
-            html += '<tr class="' + (isBR ? 'class-brasil' : '') + '">' +
-                '<td class="class-pos">—</td>' +
-                '<td><div class="class-time"><span style="font-size:1.1rem">' + s.flag + '</span><span>' + s.nome + '</span></div></td>' +
-                '<td class="class-pts">0</td>' +
-                '<td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>' +
-            '</tr>';
-        });
-        html += '</tbody></table>';
-        html += '<div class="selecao-sem-dados" style="margin-bottom:16px">⏳ A fase de grupos começa em 11 de junho. A classificação será atualizada em tempo real.</div>';
-    }
-
-    if (standings && standings.length > 0) {
-        html += '</tbody></table>';
-    }
-
-    // JOGOS DO GRUPO
-    if (fixtures && fixtures.length > 0) {
-        html += '<h4 class="grupo-jogos-titulo" style="margin-top:20px">📅 Jogos do Grupo</h4>';
-
-        // Agrupa por rodada
-        var rodadas = {};
-        fixtures.forEach(function(f) {
-            var rodada = f.league.round || 'Fase de Grupos';
-            if (!rodadas[rodada]) rodadas[rodada] = [];
-            rodadas[rodada].push(f);
-        });
-
-        Object.keys(rodadas).forEach(function(rodada) {
-            html += '<div class="grupo-jogos-titulo" style="color:var(--red);margin-top:14px;margin-bottom:8px">' + escapeHtml(rodada) + '</div>';
-            rodadas[rodada].forEach(function(f) {
-                var home = f.teams.home.name;
-                var away = f.teams.away.name;
-                var dateObj = new Date(f.fixture.date);
-                var dateStr = dateObj.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short' });
-                var timeStr = dateObj.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-                var local = f.fixture.venue && f.fixture.venue.name ? f.fixture.venue.name : '';
-                var isLive = f.fixture.status.short === 'LIVE' || f.fixture.status.short === '1H' || f.fixture.status.short === '2H' || f.fixture.status.short === 'HT';
-                var isEnd = f.fixture.status.short === 'FT';
-                var sH = f.goals.home !== null ? f.goals.home : '';
-                var sA = f.goals.away !== null ? f.goals.away : '';
-                var isBR = home.indexOf('Brazil') > -1 || away.indexOf('Brazil') > -1 || home.indexOf('Brasil') > -1 || away.indexOf('Brasil') > -1;
-                var min = f.fixture.status.elapsed ? f.fixture.status.elapsed + "'" : '';
-
-                html += '<div class="grupo-jogo-item' + (isBR ? '" style="border-color:rgba(229,9,20,0.4)' : '') + '">' +
-                    '<div class="grupo-jogo-meta">' +
-                        '<span class="grupo-jogo-data">📅 ' + dateStr + ' · ' + timeStr + ' (Brasília)</span>' +
-                        (local ? '<span class="grupo-jogo-local">📍 ' + escapeHtml(local) + '</span>' : '') +
-                        (isLive ? '<span class="grupo-jogo-status-live">🔴 ' + min + '</span>' : '') +
-                        (isEnd ? '<span class="grupo-jogo-status-live" style="color:#888">Encerrado</span>' : '') +
-                    '</div>' +
-                    '<div class="grupo-jogo-times">' +
-                        '<div class="grupo-jogo-time">' +
-                            (f.teams.home.logo ? '<img src="'+f.teams.home.logo+'" alt="">' : '') +
-                            '<span>' + escapeHtml(home) + '</span>' +
-                        '</div>' +
-                        (isLive || isEnd
-                            ? '<div class="grupo-jogo-score">' + sH + ' × ' + sA + '</div>'
-                            : '<div class="grupo-jogo-vs">vs</div>') +
-                        '<div class="grupo-jogo-time away">' +
-                            '<span>' + escapeHtml(away) + '</span>' +
-                            (f.teams.away.logo ? '<img src="'+f.teams.away.logo+'" alt="">' : '') +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
-            });
-        });
-    } else {
-        // Sem fixtures — mostra mensagem
-        html += '<div class="selecao-sem-dados">📅 Os jogos deste grupo serão exibidos aqui quando a API sincronizar os dados.</div>';
-    }
-
-    html += '<div class="grupo-cta">' +
-        '<button class="btn-modal-submit" onclick="closeGrupoModal();openModal(\'Copa do Mundo 2026\')">🎬 Assistir no VLTV Play — HD &amp; 4K</button>' +
-    '</div>';
-
-    content.innerHTML = html;
-}
-
-function renderGrupoModalEstatico(grupo) {
-    var content = document.getElementById('grupoModalContent');
-    if (!content) return;
-    var estatico = GRUPOS_ESTATICOS[grupo] || { selecoes: [] };
-
-    var html = '<div class="grupo-modal-header">' +
-        '<div><div class="grupo-modal-titulo">Grupo ' + grupo + '</div>' +
-        '<div class="grupo-modal-sub">Copa do Mundo 2026</div></div></div>';
-
-    html += '<h4 class="grupo-jogos-titulo">📊 Seleções do Grupo</h4>';
-    html += '<table class="classificacao-table"><thead><tr>' +
-        '<th>#</th><th style="text-align:left">Seleção</th>' +
-        '<th>P</th><th>J</th><th>V</th><th>E</th><th>D</th>' +
-    '</tr></thead><tbody>';
-
-    estatico.selecoes.forEach(function(s) {
-        var isBR = s.nome === 'Brasil';
-        html += '<tr class="' + (isBR ? 'class-brasil' : '') + '">' +
-            '<td class="class-pos">—</td>' +
-            '<td><div class="class-time"><span style="font-size:1.1rem">' + s.flag + '</span><span>' + s.nome + '</span></div></td>' +
-            '<td class="class-pts">0</td><td>0</td><td>0</td><td>0</td><td>0</td>' +
-        '</tr>';
-    });
-
-    html += '</tbody></table>' +
-        '<div class="selecao-sem-dados">⏳ Configure FOOTBALL_KEY no Render para ver dados em tempo real.</div>' +
-        '<div class="grupo-cta"><button class="btn-modal-submit" onclick="closeGrupoModal();openModal(\'Copa do Mundo 2026\')">🎬 Assistir no VLTV Play</button></div>';
-
-    content.innerHTML = html;
-}
-
-function closeGrupoModal() {
-    var m = document.getElementById('grupoModal');
-    if (m) m.classList.remove('active');
-    document.body.style.overflow = '';
-}
-function handleGrupoModalClick(e) {
-    if (e.target === document.getElementById('grupoModal')) closeGrupoModal();
-}
-
 // ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', function() {
+    loadDestaques();
     loadNowPlaying();
     loadMovies();
     loadSeries();
-    loadCopaMundoData();
 });

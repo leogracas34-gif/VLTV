@@ -24,11 +24,11 @@ const GENRES_TV = {
 // ══════════════════════════════════════════════
 var DESTAQUES = [
     {
-        titulo: 'A Minecraft Movie',   // Nome exato do filme/série em português ou inglês
+        titulo: 'Muti - Crime e Poder',   // Nome exato do filme/série em português ou inglês
         tipo: 'filme'                  // 'filme' ou 'serie'
     },
     {
-        titulo: 'The Last of Us',      // Nome exato do filme/série em português ou inglês
+        titulo: 'Origem',      // Nome exato do filme/série em português ou inglês
         tipo: 'serie'                  // 'filme' ou 'serie'
     }
 ];

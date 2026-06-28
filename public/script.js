@@ -28,7 +28,7 @@ var DESTAQUES = [
         tipo: 'filme'                  // 'filme' ou 'serie'
     },
     {
-        titulo: 'Eu Vou Encontrar-te (2026)',      // Nome exato do filme/série em português ou inglês
+        titulo: 'Eu Vou Encontrar-te',      // Nome exato do filme/série em português ou inglês
         tipo: 'serie'                  // 'filme' ou 'serie'
     }
 ];
